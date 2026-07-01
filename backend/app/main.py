@@ -16,10 +16,17 @@ app = FastAPI(
     version="1.0.0"
 )
 
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://snack-check-nine.vercel.app",
+    settings.frontend_url
+]
+
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url] if settings.frontend_url else ["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

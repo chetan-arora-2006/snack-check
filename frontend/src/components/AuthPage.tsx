@@ -36,19 +36,27 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
     }
   }, [loginWithGoogle]);
 
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    document.head.appendChild(script);
+  const gsiInitialized = React.useRef(false);
 
-    script.onload = () => {
-      // Look for client ID from configuration or use fallback
+  useEffect(() => {
+    // Only add script if it doesn't exist
+    let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]') as HTMLScriptElement;
+
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    const initGsi = () => {
       const clientId = "803898867364-9sc337s4gt4hdrbc0v8pfqv936pkoofj.apps.googleusercontent.com";
       const isPlaceholder = !clientId || clientId.includes("YOUR_GOOGLE") || clientId.includes("your_google");
       
-      if (window.google && !isPlaceholder) {
+      const btnContainer = document.getElementById("google-signin-div");
+
+      if (window.google && !isPlaceholder && !gsiInitialized.current && btnContainer) {
         try {
           window.google.accounts.id.initialize({
             client_id: clientId,
@@ -57,25 +65,28 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
             },
           });
           window.google.accounts.id.renderButton(
-            document.getElementById("google-signin-div"),
+            btnContainer,
             { theme: "dark", size: "large", type: "standard", width: 340 }
           );
+          gsiInitialized.current = true;
         } catch (e) {
           console.error("Failed to initialize Google Auth:", e);
         }
       }
     };
 
+    if (window.google) {
+      initGsi();
+    } else {
+      script.addEventListener('load', initGsi);
+    }
+
     return () => {
-      try {
-        document.head.removeChild(script);
-      } catch (e) {
-        console.error(e);
+      if (script) {
+        script.removeEventListener('load', initGsi);
       }
     };
   }, [handleGoogleSuccess]);
-
-  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

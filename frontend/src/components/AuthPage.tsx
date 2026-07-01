@@ -116,7 +116,11 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
           </button>
         )}
         {/* Brand Logo */}
-        <div className="flex flex-col items-center gap-3 mb-8">
+        <button 
+          onClick={onBack}
+          disabled={!onBack}
+          className={`flex flex-col items-center gap-3 mb-8 w-full ${onBack ? 'cursor-pointer hover:opacity-80 transition-opacity' : 'cursor-default'}`}
+        >
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-xl shadow-emerald-500/10">
             <Activity className="w-8 h-8 text-slate-950" />
           </div>
@@ -126,7 +130,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
             </h1>
             <p className="text-slate-400 text-sm mt-1">Make informed snack decisions using AI</p>
           </div>
-        </div>
+        </button>
 
         {/* Auth Panel */}
         <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl">

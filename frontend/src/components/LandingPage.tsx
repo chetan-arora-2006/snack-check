@@ -12,10 +12,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn }) => {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-emerald-400">
+          <button 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="flex items-center gap-2 text-emerald-400 cursor-pointer hover:opacity-80 transition-opacity"
+          >
             <ScanLine className="w-6 h-6" />
             <span className="text-xl font-bold tracking-tight text-white">SnackCheck</span>
-          </div>
+          </button>
           <button 
             onClick={onSignIn}
             className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors"

@@ -6,6 +6,13 @@ The stack utilizes **Python FastAPI** and **MongoDB** for the backend, and **Rea
 
 ---
 
+## Live Demo
+
+- **Frontend (Vercel)**: [https://snack-check-nine.vercel.app/](https://snack-check-nine.vercel.app/)
+- **Backend API (Render)**: [https://snack-check.onrender.com](https://snack-check.onrender.com)
+
+---
+
 ## Technical Features
 
 1. **AI Food Label Scanner**: Decodes ingredients and nutrition facts in-memory using **Google Gemini API** (`gemini-2.5-flash`), computing an overall health score (0-100), health grade (A+, A, B, C, D, F), warning notifications, and healthier alternatives.

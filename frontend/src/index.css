@@ -1,0 +1,191 @@
+@import "tailwindcss";
+@custom-variant dark (&:is(.dark *));
+
+/* ═══════════════════════════════════════════════════════════════
+   SNACKCHECK  ·  Light & Dark Design System
+   Approach: Direct CSS overrides (no broken variable remapping)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── BASE BODY ────────────────────────────────────────────── */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  @apply antialiased min-h-screen;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Light mode */
+body {
+  background-color: #f0f4f0;
+  color: #0f172a;
+}
+
+/* Dark mode */
+html.dark body {
+  background-color: #060e0a;
+  color: #f0faf4;
+}
+
+/* ── GLASS CARDS ──────────────────────────────────────────── */
+/* Light: pure white card */
+.glass {
+  background: #ffffff;
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.05),
+    0 4px 12px rgba(16, 185, 129, 0.06);
+  transition: box-shadow 200ms ease, border-color 200ms ease,
+              background 200ms ease, transform 150ms ease;
+}
+.glass:hover {
+  border-color: rgba(52, 211, 153, 0.4);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06),
+              0 8px 24px rgba(16, 185, 129, 0.10);
+}
+
+/* Dark: frosted deep-green glass */
+html.dark .glass {
+  background: rgba(8, 22, 12, 0.72);
+  border: 1px solid rgba(52, 211, 153, 0.09);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.40);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+}
+html.dark .glass:hover {
+  border-color: rgba(52, 211, 153, 0.20);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.50);
+}
+
+/* ── LIGHT MODE: FIX DARK-FIRST TEXT/BG PATTERNS ─────────── */
+/*
+  Components were written dark-first with classes like:
+  - text-slate-100 / text-slate-200  → would show white on white
+  - bg-slate-900/20, bg-slate-950/40 → dark overlay on white bg
+  - border-slate-800 / border-slate-900 → near-black borders
+
+  We override these directly in light mode.
+*/
+
+/* -- TEXT: force dark readable text on light backgrounds -- */
+html:not(.dark) {
+  /* Primary text — slate-100, slate-200 used for headings in dark mode */
+  color: #0f172a;
+}
+
+/* Any element using slate-100/200 text (meant for dark mode) → make dark */
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200 {
+  color: #1e293b !important;
+}
+
+/* slate-300/400 muted text → readable mid-gray */
+html:not(.dark) .text-slate-300 {
+  color: #64748b !important;
+}
+html:not(.dark) .text-slate-400 {
+  color: #475569 !important;
+}
+html:not(.dark) .text-slate-500 {
+  color: #334155 !important;
+}
+
+/* -- BACKGROUNDS: dark card overlays → transparent white -- */
+html:not(.dark) .bg-slate-900\/20,
+html:not(.dark) .bg-slate-900\/40,
+html:not(.dark) .bg-slate-900\/60,
+html:not(.dark) .bg-slate-900\/80,
+html:not(.dark) .bg-slate-950\/20,
+html:not(.dark) .bg-slate-950\/40,
+html:not(.dark) .bg-slate-950\/60 {
+  background-color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* -- BORDERS: dark borders → soft sage-green border -- */
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-900 {
+  border-color: rgba(167, 210, 180, 0.50) !important;
+}
+html:not(.dark) .border-slate-850 {
+  border-color: rgba(167, 210, 180, 0.40) !important;
+}
+
+/* -- STROKE: SVG circles (chart rings) dark stroke → light gray -- */
+html:not(.dark) .stroke-slate-800 {
+  stroke: #e2e8f0 !important;
+}
+
+/* -- ICON BACKGROUNDS: dark tinted badge backgrounds -- */
+html:not(.dark) .bg-slate-900 {
+  background-color: #f8fafc !important;
+}
+
+/* -- INPUTS always white with readable text -- */
+html:not(.dark) input,
+html:not(.dark) textarea,
+html:not(.dark) select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: rgba(167, 210, 180, 0.6) !important;
+}
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* -- NAVBAR (header.glass): ensure white in light -- */
+html:not(.dark) header.glass {
+  background: #ffffff !important;
+  border-color: rgba(167, 210, 180, 0.45) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04) !important;
+}
+
+/* -- DROPDOWN MENUS: white in light mode -- */
+html:not(.dark) .bg-slate-900 {
+  background-color: #ffffff !important;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────────── */
+::-webkit-scrollbar           { width: 5px; height: 5px; }
+::-webkit-scrollbar-track     { background: #e8f0e9; }
+::-webkit-scrollbar-thumb     { background: #9dbfa3; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #6fa07a; }
+html.dark ::-webkit-scrollbar-track { background: #0d1a10; }
+html.dark ::-webkit-scrollbar-thumb { background: #1e4028; border-radius: 9999px; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #2d6040; }
+
+/* ── MICRO-INTERACTIONS ───────────────────────────────────── */
+a, button, input, textarea, select, [role="button"] {
+  transition:
+    transform        140ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow       150ms ease,
+    border-color     150ms ease,
+    background-color 150ms ease,
+    color            150ms ease,
+    opacity          150ms ease;
+}
+button:not(:disabled):hover  { transform: translateY(-1px); }
+button:not(:disabled):active { transform: scale(0.97); }
+
+/* ── SKELETON SHIMMER ─────────────────────────────────────── */
+@keyframes sc-shimmer {
+  0%   { background-position: -800px 0; }
+  100% { background-position:  800px 0; }
+}
+html:not(.dark) .animate-pulse {
+  background: linear-gradient(90deg, #e8f0e9 25%, #d8e8da 50%, #e8f0e9 75%) !important;
+  background-size: 1600px 100% !important;
+  animation: sc-shimmer 1.6s ease-in-out infinite !important;
+}
+html.dark .animate-pulse {
+  background: linear-gradient(90deg, #0e1e12 25%, #152a19 50%, #0e1e12 75%) !important;
+  background-size: 1600px 100% !important;
+  animation: sc-shimmer 1.6s ease-in-out infinite !important;
+}
+
+/* ── PAGE ANIMATIONS ──────────────────────────────────────── */
+.animate-in { animation: animIn 200ms ease both; }
+.fade-in    { animation-name: fadeIn; }
+.slide-in-from-top-2 { animation-name: slideFromTop; }
+
+@keyframes animIn      { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes fadeIn      { from { opacity:0; } to { opacity:1; } }
+@keyframes slideFromTop { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }

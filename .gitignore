@@ -1,0 +1,26 @@
+# Node/Frontend
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+# Python/Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+venv/
+env/
+.venv/
+.pytest_cache/
+test.db
+snackcheck.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

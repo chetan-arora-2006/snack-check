@@ -13,6 +13,7 @@ import { InvitePage } from './components/InvitePage';
 import { ProfilePage } from './components/ProfilePage';
 import { ProductCatalog } from './components/ProductCatalog';
 import { TodayConsumption } from './components/TodayConsumption';
+import { LandingPage } from './components/LandingPage';
 import type { ScanDB } from './schemas/scan';
 
 class ErrorBoundary extends React.Component<
@@ -55,6 +56,7 @@ class ErrorBoundary extends React.Component<
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [selectedScan, setSelectedScan] = useState<ScanDB | null>(null);
 
@@ -71,7 +73,10 @@ const AppContent: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return <AuthPage />;
+    if (showAuth) {
+      return <AuthPage onBack={() => setShowAuth(false)} />;
+    }
+    return <LandingPage onSignIn={() => setShowAuth(true)} />;
   }
 
   return (

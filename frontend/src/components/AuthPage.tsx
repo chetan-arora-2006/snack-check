@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Activity, Mail, Lock, User, AlertCircle, Sparkles } from 'lucide-react';
+import { Activity, Mail, Lock, User, AlertCircle, ChevronLeft } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -8,12 +8,17 @@ declare global {
   }
 }
 
-export const AuthPage: React.FC = () => {
+interface AuthPageProps {
+  onBack?: () => void;
+}
+
+export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
   const { login, signup, loginWithGoogle } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
   
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -72,19 +77,16 @@ export const AuthPage: React.FC = () => {
 
   
 
-  const handleDemoGoogleLogin = async () => {
-    // Generate a mock token for backend verification bypass
-    const mockEmail = `demo_${Math.floor(Math.random() * 9000) + 1000}@snackcheck.com`;
-    const mockToken = `mock_token_${mockEmail}`;
-    handleGoogleSuccess(mockToken);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     try {
+      if (!isLogin && !agreeToTerms) {
+        throw new Error("You must agree to the Terms of Service and Privacy Policy.");
+      }
+      
       if (isLogin) {
         await login(email, password);
       } else {
@@ -104,6 +106,15 @@ export const AuthPage: React.FC = () => {
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-teal-500/10 blur-[120px]" />
 
       <div className="w-full max-w-md relative z-10">
+        {onBack && (
+          <button 
+            onClick={onBack}
+            className="absolute -top-12 left-0 flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back to Home
+          </button>
+        )}
         {/* Brand Logo */}
         <div className="flex flex-col items-center gap-3 mb-8">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-xl shadow-emerald-500/10">
@@ -193,6 +204,21 @@ export const AuthPage: React.FC = () => {
               </div>
             </div>
 
+            {!isLogin && (
+              <div className="flex items-start gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  className="mt-1 w-4 h-4 bg-slate-900 border-slate-700 rounded text-emerald-500 focus:ring-emerald-500/20"
+                />
+                <label htmlFor="terms" className="text-xs text-slate-400 leading-relaxed">
+                  I agree to the SnackCheck <a href="#" className="text-emerald-400 hover:underline">Terms of Service</a> and <a href="#" className="text-emerald-400 hover:underline">Privacy Policy</a>, and consent to having my dietary data processed for personalized AI recommendations.
+                </label>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
@@ -223,16 +249,6 @@ export const AuthPage: React.FC = () => {
           <div className="flex flex-col gap-2 items-center">
             {/* Div loaded by Google SDK */}
             <div id="google-signin-div" className="w-full flex justify-center" />
-            
-            {/* Developer mock Google login */}
-            <button
-              onClick={handleDemoGoogleLogin}
-              disabled={loading}
-              className="w-full max-w-[340px] flex items-center justify-center gap-2 border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900 text-xs text-emerald-400 font-semibold py-3 px-4 rounded-xl transition-all duration-200 active:scale-[0.98]"
-            >
-              <Sparkles className="w-4 h-4 text-emerald-400" />
-              Demo Sign In (Skip Google Setup)
-            </button>
           </div>
         </div>
       </div>

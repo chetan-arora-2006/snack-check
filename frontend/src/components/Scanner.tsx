@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Loader } from './UI/Loader';
 import { Card } from './UI/Card';
@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const Scanner: React.FC = () => {
-  const { apiFetch, user, activeMemberId } = useAuth();
+  const { apiFetch, user, activeMemberId, setActiveMemberId } = useAuth();
   
   // Tabs and scan states
   const [scanTab, setScanTab] = useState<'image' | 'barcode'>('image');
@@ -29,14 +29,29 @@ export const Scanner: React.FC = () => {
   const [report, setReport] = useState<ScanReport | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logged, setLogged] = useState(false);
+  
+  // Dropdown state for family member switching
+  const [showMemberDropdown, setShowMemberDropdown] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const activeName = activeMemberId && user?.family_members
     ? user.family_members.find(m => m.id === activeMemberId)?.name
     : "Primary Profile (You)";
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowMemberDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // File Upload Handlers
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,9 +237,56 @@ export const Scanner: React.FC = () => {
           <h2 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100">Snack Scanner</h2>
           <p className="text-slate-400 text-sm mt-1">Upload a label, snap a photo, or lookup barcodes for immediate AI scoring.</p>
         </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs px-4 py-2.5 rounded-2xl font-bold flex items-center gap-1.5 self-start md:self-auto shadow-md">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
-          Scanning for: <span className="underline">{activeName}</span>
+        <div className="relative" ref={dropdownRef}>
+          <button 
+            onClick={() => setShowMemberDropdown(!showMemberDropdown)}
+            className="bg-emerald-500/10 border border-emerald-500/25 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs px-4 py-2.5 rounded-2xl font-bold flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            Scanning for: <span className="underline">{activeName}</span>
+          </button>
+          
+          {showMemberDropdown && (
+            <div className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+              <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-2">Select Scan Target</p>
+              </div>
+              <div className="max-h-60 overflow-y-auto p-1.5">
+                <button
+                  onClick={() => {
+                    setActiveMemberId(null);
+                    setShowMemberDropdown(false);
+                  }}
+                  className={`w-full text-left px-3 py-2.5 text-sm font-semibold rounded-xl flex items-center justify-between transition-colors ${
+                    !activeMemberId 
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <span>Primary Profile (You)</span>
+                  {!activeMemberId && <CheckCircle className="w-4 h-4" />}
+                </button>
+                
+                {user?.family_members?.map(member => (
+                  <button
+                    key={member.id}
+                    onClick={() => {
+                      setActiveMemberId(member.id);
+                      setShowMemberDropdown(false);
+                    }}
+                    className={`w-full text-left px-3 py-2.5 text-sm font-semibold rounded-xl flex items-center justify-between transition-colors ${
+                      activeMemberId === member.id 
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{member.name}</span>
+                    {activeMemberId === member.id && <CheckCircle className="w-4 h-4" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

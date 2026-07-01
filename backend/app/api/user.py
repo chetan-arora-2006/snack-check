@@ -8,6 +8,15 @@ from typing import List
 
 router = APIRouter(prefix="/user", tags=["User Profile"])
 
+def invite_profile(user_doc: dict) -> dict:
+    return {
+        "id": str(user_doc["_id"]),
+        "name": user_doc.get("name", ""),
+        "email": user_doc.get("email", ""),
+        "picture": user_doc.get("picture"),
+        "nametag": user_doc.get("nametag")
+    }
+
 @router.get("/profile", response_model=UserProfile)
 async def get_profile(current_user: dict = Depends(get_current_user)):
     """Retrieve the profile data of the logged-in user."""
@@ -78,10 +87,10 @@ async def update_nametag(payload: dict, current_user: dict = Depends(get_current
 
 @router.post("/family/link", response_model=UserProfile)
 async def link_family_member(payload: dict, current_user: dict = Depends(get_current_user)):
-    """Link a family member by looking up their unique nametag."""
+    """Send a family link invite by looking up a unique nametag."""
     tag = payload.get("nametag", "").strip().lower()
     if not tag:
-        raise HTTPException(status_code=400, detail="Please enter a nametag to link")
+        raise HTTPException(status_code=400, detail="Please enter a nametag to invite")
     
     target_user = await users_col.find_one({"nametag": tag})
     if not target_user:
@@ -91,18 +100,116 @@ async def link_family_member(payload: dict, current_user: dict = Depends(get_cur
     current_id_str = str(current_user["_id"])
     
     if target_id_str == current_id_str:
-        raise HTTPException(status_code=400, detail="You cannot link to your own profile")
+        raise HTTPException(status_code=400, detail="You cannot invite your own profile")
     
-    # Link both users
+    if target_id_str in current_user.get("linked_family_members", []):
+        raise HTTPException(status_code=400, detail="This profile is already linked")
+
+    # If the target already invited the current user, accepting is the friendliest outcome.
+    if target_id_str in current_user.get("pending_family_invites", []):
+        await users_col.update_one(
+            {"_id": ObjectId(current_user["id"])},
+            {
+                "$pull": {"pending_family_invites": target_id_str},
+                "$addToSet": {"linked_family_members": target_id_str}
+            }
+        )
+        await users_col.update_one(
+            {"_id": ObjectId(target_user["_id"])},
+            {"$addToSet": {"linked_family_members": current_id_str}}
+        )
+        updated_user = await users_col.find_one({"_id": ObjectId(current_user["id"])})
+        return format_user_profile(updated_user)
+
+    if current_id_str in target_user.get("pending_family_invites", []):
+        raise HTTPException(status_code=400, detail="Invite already sent")
+
+    # Send pending invite to the target user.
+    await users_col.update_one(
+        {"_id": ObjectId(target_id_str)},
+        {"$addToSet": {"pending_family_invites": current_id_str}}
+    )
+    
+    updated_user = await users_col.find_one({"_id": ObjectId(current_user["id"])})
+    return format_user_profile(updated_user)
+
+@router.get("/family/invites")
+async def get_family_invites(current_user: dict = Depends(get_current_user)):
+    """Retrieve incoming and outgoing family link invites."""
+    current_id_str = str(current_user["_id"])
+
+    incoming = []
+    for requester_id in current_user.get("pending_family_invites", []):
+        try:
+            requester = await users_col.find_one({"_id": ObjectId(requester_id)})
+            if requester:
+                incoming.append(invite_profile(requester))
+        except Exception:
+            pass
+
+    outgoing_cursor = users_col.find({"pending_family_invites": current_id_str})
+    outgoing_users = await outgoing_cursor.to_list(length=100)
+
+    return {
+        "incoming": incoming,
+        "outgoing": [invite_profile(user) for user in outgoing_users]
+    }
+
+@router.post("/family/invites/{requester_id}/accept", response_model=UserProfile)
+async def accept_family_invite(requester_id: str, current_user: dict = Depends(get_current_user)):
+    """Accept a pending family invite and create a mutual link."""
+    current_id_str = str(current_user["_id"])
+
+    if requester_id not in current_user.get("pending_family_invites", []):
+        raise HTTPException(status_code=404, detail="Invite not found")
+
+    try:
+        requester_obj_id = ObjectId(requester_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid requester ID")
+
+    requester = await users_col.find_one({"_id": requester_obj_id})
+    if not requester:
+        raise HTTPException(status_code=404, detail="Requester profile not found")
+
     await users_col.update_one(
         {"_id": ObjectId(current_user["id"])},
-        {"$addToSet": {"linked_family_members": target_id_str}}
+        {
+            "$pull": {"pending_family_invites": requester_id},
+            "$addToSet": {"linked_family_members": requester_id}
+        }
     )
     await users_col.update_one(
-        {"_id": ObjectId(target_user["_id"])},
+        {"_id": requester_obj_id},
         {"$addToSet": {"linked_family_members": current_id_str}}
     )
-    
+
+    updated_user = await users_col.find_one({"_id": ObjectId(current_user["id"])})
+    return format_user_profile(updated_user)
+
+@router.post("/family/invites/{requester_id}/reject", response_model=UserProfile)
+async def reject_family_invite(requester_id: str, current_user: dict = Depends(get_current_user)):
+    """Reject a pending family invite."""
+    await users_col.update_one(
+        {"_id": ObjectId(current_user["id"])},
+        {"$pull": {"pending_family_invites": requester_id}}
+    )
+    updated_user = await users_col.find_one({"_id": ObjectId(current_user["id"])})
+    return format_user_profile(updated_user)
+
+@router.delete("/family/invites/{target_id}", response_model=UserProfile)
+async def cancel_family_invite(target_id: str, current_user: dict = Depends(get_current_user)):
+    """Cancel an outgoing family invite sent by the current user."""
+    try:
+        target_obj_id = ObjectId(target_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid target ID")
+
+    await users_col.update_one(
+        {"_id": target_obj_id},
+        {"$pull": {"pending_family_invites": str(current_user["_id"])}}
+    )
+
     updated_user = await users_col.find_one({"_id": ObjectId(current_user["id"])})
     return format_user_profile(updated_user)
 

@@ -85,6 +85,7 @@ export const Scanner: React.FC = () => {
         videoRef.current.srcObject = stream;
       }
     } catch (err: any) {
+      console.error(err);
       setError("Could not access camera. Please upload an image or check permissions.");
       setCameraActive(false);
     }
@@ -172,6 +173,7 @@ export const Scanner: React.FC = () => {
       setLogged(true);
       alert(`Logged ${report.product_name} consumed into today's budget!`);
     } catch (e: any) {
+      console.error(e);
       alert("Failed to log consumption.");
     }
   };
@@ -215,7 +217,7 @@ export const Scanner: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-300">
       
       {/* Dynamic Header */}
-      <div className="flex justify-between items-start md:items-center flex-col md:flex-row gap-4 bg-slate-900/10 p-5 border border-slate-800 rounded-3xl">
+      <div className="flex justify-between items-start md:items-center flex-col md:flex-row gap-4 bg-white dark:bg-slate-900/30 p-5 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
         <div>
           <h2 className="text-3xl font-extrabold text-slate-900 dark:text-slate-100">Snack Scanner</h2>
           <p className="text-slate-400 text-sm mt-1">Upload a label, snap a photo, or lookup barcodes for immediate AI scoring.</p>
@@ -238,13 +240,13 @@ export const Scanner: React.FC = () => {
 
       {/* Tabs Option */}
       {!loading && !report && (
-        <div className="flex gap-2 border-b border-slate-800 pb-2">
+      <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
           <button
             onClick={() => { setScanTab('image'); stopCamera(); }}
             className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
               scanTab === 'image' 
                 ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-900/40'
             }`}
           >
             Image / Camera Scan
@@ -254,7 +256,7 @@ export const Scanner: React.FC = () => {
             className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all cursor-pointer ${
               scanTab === 'barcode' 
                 ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' 
-                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-white dark:hover:bg-slate-900/40'
             }`}
           >
             Barcode Lookup
@@ -267,7 +269,7 @@ export const Scanner: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
           {/* File drag-drop / Camera preview */}
-          <Card className="flex flex-col items-center justify-center p-8 border border-slate-800 min-h-[320px] relative">
+          <Card className="flex flex-col items-center justify-center p-8 border border-slate-200 dark:border-slate-800 min-h-[320px] relative">
             {cameraActive ? (
               <div className="w-full h-full flex flex-col items-center gap-4">
                 <video 
@@ -321,14 +323,14 @@ export const Scanner: React.FC = () => {
               <div 
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                className="w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-3xl p-8 cursor-pointer transition-colors group"
+                className="w-full flex flex-col items-center justify-center border-2 border-dashed border-emerald-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-slate-700 rounded-3xl p-8 cursor-pointer transition-colors group"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="w-16 h-16 rounded-2xl bg-slate-900/60 flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform duration-200 mb-4 border border-slate-850">
+                <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-900/60 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:scale-110 transition-transform duration-200 mb-4 border border-slate-200 dark:border-slate-850">
                   <Upload className="w-6 h-6" />
                 </div>
-                <p className="font-bold text-slate-200">Drag & drop your label here</p>
-                <p className="text-xs text-slate-500 mt-1.5">Supports JPG, PNG (Max 5MB)</p>
+                <p className="font-bold text-slate-900 dark:text-slate-200">Drag & drop your label here</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">Supports JPG, PNG (Max 5MB)</p>
                 <span className="mt-4 px-4 py-2 bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-semibold rounded-xl text-xs transition-colors">
                   Browse Files
                 </span>
@@ -355,7 +357,7 @@ export const Scanner: React.FC = () => {
                 <button 
                   onClick={startCamera}
                   disabled={cameraActive}
-                  className="mt-3 px-4 py-2 border border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900 text-xs font-semibold text-emerald-400 rounded-xl transition-all cursor-pointer"
+                  className="mt-3 px-4 py-2 border border-emerald-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-slate-700 bg-white dark:bg-slate-900/40 hover:bg-emerald-50 dark:hover:bg-slate-900 text-xs font-semibold text-emerald-600 dark:text-emerald-400 rounded-xl transition-all cursor-pointer"
                 >
                   Launch Camera
                 </button>
@@ -377,12 +379,12 @@ export const Scanner: React.FC = () => {
 
       {/* Input panel (Barcode Search lookup) */}
       {!loading && !report && scanTab === 'barcode' && (
-        <Card className="p-8 border border-slate-800 flex flex-col items-center justify-center min-h-[320px]">
-          <div className="w-16 h-16 rounded-2xl bg-slate-900/60 flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-850 mb-6">
+        <Card className="p-8 border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center min-h-[320px]">
+          <div className="w-16 h-16 rounded-2xl bg-white dark:bg-slate-900/60 flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-850 mb-6">
             <BookOpen className="w-7 h-7" />
           </div>
           
-          <h3 className="text-xl font-bold text-slate-250 mb-2">Search Product Barcode</h3>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Search Product Barcode</h3>
           <p className="text-slate-600 dark:text-slate-400 text-sm text-center max-w-md mb-6 leading-relaxed">
             Enter a product barcode number. We query the global Open Food Facts API and evaluate the nutritional properties via Gemini.
           </p>

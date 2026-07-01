@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import {
   Search, X, ShieldAlert,
   Leaf, AlertTriangle, CheckCircle, ChevronRight, Package,
-  BarChart3, Loader2, ArrowRight, Star, FlaskConical, Zap
+  BarChart3, Loader2, ArrowRight, Star, FlaskConical, Zap, RefreshCw
 } from 'lucide-react';
 
 interface Nutrient {
@@ -47,6 +47,226 @@ interface Product {
   brand: string;
   quantity: string;
 }
+
+
+
+const curatedIndianProducts: Product[] = [
+  {
+    product_name: 'Maggi 2-Minute Masala Noodles',
+    health_rating: 54,
+    health_grade: 'D',
+    grade_color: '#eab308',
+    summary: 'A familiar Indian instant noodle option. Best kept occasional because it is refined and usually high in sodium.',
+    nutrients: { calories: 420, sugars: 3.5, fat: 14, saturated_fat: 6, protein: 8, sodium: 980, fiber: 2.5 },
+    warnings: { high_sugar: false, high_sodium: true, high_saturated_fat: true, allergens: ['Gluten'], additives: [] },
+    ingredients_analysis: { beneficial: [], neutral: ['wheat flour', 'spices'], avoid: ['refined flour', 'palm oil'] },
+    healthier_alternatives: [{ name: 'Vegetable poha', description: 'Lower sodium and easier to balance with vegetables and peanuts.' }],
+    image_url: 'https://images.unsplash.com/photo-1612929633738-8fe44f7ec841?w=400',
+    barcode: 'india-curated-maggi',
+    brand: 'Maggi',
+    quantity: '70 g'
+  },
+  {
+    product_name: 'Parle-G Original Gluco Biscuits',
+    health_rating: 48,
+    health_grade: 'D',
+    grade_color: '#eab308',
+    summary: 'A classic Indian biscuit, but it is sugar-forward and made with refined flour.',
+    nutrients: { calories: 450, sugars: 25, fat: 12, saturated_fat: 5, protein: 7, sodium: 420, fiber: 2 },
+    warnings: { high_sugar: true, high_sodium: false, high_saturated_fat: false, allergens: ['Gluten', 'Dairy'], additives: [] },
+    ingredients_analysis: { beneficial: [], neutral: ['milk solids'], avoid: ['sugar', 'refined wheat flour'] },
+    healthier_alternatives: [{ name: 'Roasted chana', description: 'More protein and fiber with less added sugar.' }],
+    image_url: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400',
+    barcode: 'india-curated-parleg',
+    brand: 'Parle',
+    quantity: '250 g'
+  },
+  {
+    product_name: 'Haldiram Bhujia',
+    health_rating: 42,
+    health_grade: 'F',
+    grade_color: '#ef4444',
+    summary: 'Crunchy Indian namkeen with high fat and sodium. Better as a small portion snack.',
+    nutrients: { calories: 560, sugars: 2, fat: 36, saturated_fat: 11, protein: 13, sodium: 950, fiber: 5 },
+    warnings: { high_sugar: false, high_sodium: true, high_saturated_fat: true, allergens: [], additives: [] },
+    ingredients_analysis: { beneficial: ['gram flour'], neutral: ['spices'], avoid: ['palm oil', 'excess salt'] },
+    healthier_alternatives: [{ name: 'Masala makhana', description: 'Crunchy, lighter, and easier to portion.' }],
+    image_url: 'https://images.unsplash.com/photo-1599490659213-e2b9527fdcac?w=400',
+    barcode: 'india-curated-haldiram-bhujia',
+    brand: 'Haldiram',
+    quantity: '200 g'
+  },
+  {
+    product_name: 'Kurkure Masala Munch',
+    health_rating: 38,
+    health_grade: 'F',
+    grade_color: '#ef4444',
+    summary: 'Popular Indian extruded snack with high sodium and processed starches.',
+    nutrients: { calories: 545, sugars: 4, fat: 31, saturated_fat: 13, protein: 6, sodium: 1040, fiber: 3 },
+    warnings: { high_sugar: false, high_sodium: true, high_saturated_fat: true, allergens: [], additives: [] },
+    ingredients_analysis: { beneficial: [], neutral: ['rice meal', 'corn meal'], avoid: ['palm oil', 'flavour enhancers'] },
+    healthier_alternatives: [{ name: 'Homemade bhel', description: 'Add peanuts, onions, tomato, and less sev for better balance.' }],
+    image_url: 'https://images.unsplash.com/photo-1599490659213-e2b9527fdcac?w=400',
+    barcode: 'india-curated-kurkure',
+    brand: 'Kurkure',
+    quantity: '90 g'
+  },
+  {
+    product_name: 'Amul Kool Kesar',
+    health_rating: 62,
+    health_grade: 'C',
+    grade_color: '#eab308',
+    summary: 'Milk-based Indian drink with protein, but it can add a fair amount of sugar.',
+    nutrients: { calories: 90, sugars: 12, fat: 2, saturated_fat: 1.3, protein: 3.2, sodium: 55, fiber: 0 },
+    warnings: { high_sugar: false, high_sodium: false, high_saturated_fat: false, allergens: ['Dairy'], additives: [] },
+    ingredients_analysis: { beneficial: ['milk'], neutral: ['kesar flavour'], avoid: ['added sugar'] },
+    healthier_alternatives: [{ name: 'Plain chaas', description: 'Lower sugar and still dairy-based.' }],
+    image_url: 'https://images.unsplash.com/photo-1550461716-ba4cea53b7c4?w=400',
+    barcode: 'india-curated-amul-kool',
+    brand: 'Amul',
+    quantity: '200 ml'
+  },
+  {
+    product_name: 'Britannia Good Day Cashew Cookies',
+    health_rating: 50,
+    health_grade: 'D',
+    grade_color: '#eab308',
+    summary: 'Indian cookie with cashew notes, but refined flour and sugar dominate.',
+    nutrients: { calories: 500, sugars: 23, fat: 24, saturated_fat: 12, protein: 6, sodium: 380, fiber: 2 },
+    warnings: { high_sugar: true, high_sodium: false, high_saturated_fat: true, allergens: ['Gluten', 'Tree Nuts', 'Dairy'], additives: [] },
+    ingredients_analysis: { beneficial: ['cashew'], neutral: [], avoid: ['sugar', 'refined wheat flour', 'palm oil'] },
+    healthier_alternatives: [{ name: 'Fruit and peanuts', description: 'Sweet, crunchy, and more filling.' }],
+    image_url: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400',
+    barcode: 'india-curated-good-day',
+    brand: 'Britannia',
+    quantity: '200 g'
+  },
+  {
+    product_name: 'Balaji Wafers Masala Masti',
+    health_rating: 40,
+    health_grade: 'F',
+    grade_color: '#ef4444',
+    summary: 'Indian potato chips with high fat and sodium. Portion size matters.',
+    nutrients: { calories: 540, sugars: 2.5, fat: 34, saturated_fat: 12, protein: 6, sodium: 760, fiber: 4 },
+    warnings: { high_sugar: false, high_sodium: true, high_saturated_fat: true, allergens: [], additives: [] },
+    ingredients_analysis: { beneficial: [], neutral: ['potato', 'spices'], avoid: ['palm oil', 'excess salt'] },
+    healthier_alternatives: [{ name: 'Roasted peanuts', description: 'Crunchy and higher in protein.' }],
+    image_url: 'https://images.unsplash.com/photo-1566478989037-e924836412f1?w=400',
+    barcode: 'india-curated-balaji',
+    brand: 'Balaji',
+    quantity: '52 g'
+  },
+  {
+    product_name: 'Dabur Real Mixed Fruit Juice',
+    health_rating: 58,
+    health_grade: 'D',
+    grade_color: '#eab308',
+    summary: 'A common Indian packaged juice. It is convenient, but whole fruit is usually a better choice.',
+    nutrients: { calories: 55, sugars: 12, fat: 0, saturated_fat: 0, protein: 0.2, sodium: 10, fiber: 0.3 },
+    warnings: { high_sugar: false, high_sodium: false, high_saturated_fat: false, allergens: [], additives: [] },
+    ingredients_analysis: { beneficial: ['fruit pulp'], neutral: [], avoid: ['added sugar'] },
+    healthier_alternatives: [{ name: 'Whole orange or guava', description: 'More fiber and better satiety.' }],
+    image_url: 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=400',
+    barcode: 'india-curated-dabur-real',
+    brand: 'Dabur',
+    quantity: '1 L'
+  }
+];
+
+const curatedGlobalHighRatedProducts: Product[] = [
+  {
+    product_name: 'Quaker Oats Original',
+    health_rating: 92,
+    health_grade: 'A',
+    grade_color: '#22c55e',
+    summary: 'A widely used breakfast staple with whole-grain oats, useful fiber, and very low added sugar.',
+    nutrients: { calories: 389, sugars: 1, fat: 6.9, saturated_fat: 1.2, protein: 16.9, sodium: 2, fiber: 10.6 },
+    warnings: { high_sugar: false, high_sodium: false, high_saturated_fat: false, allergens: [], additives: [] },
+    ingredients_analysis: { beneficial: ['whole grain oats'], neutral: [], avoid: [] },
+    healthier_alternatives: [{ name: 'Steel-cut oats', description: 'A less processed oat option with a slower texture and strong satiety.' }],
+    image_url: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=400',
+    barcode: 'global-curated-quaker-oats',
+    brand: 'Quaker',
+    quantity: '1 kg'
+  },
+  {
+    product_name: 'Chobani Plain Greek Yogurt',
+    health_rating: 88,
+    health_grade: 'B',
+    grade_color: '#22c55e',
+    summary: 'A high-protein plain yogurt option. Choose plain over sweetened flavors for a stronger score.',
+    nutrients: { calories: 59, sugars: 3.6, fat: 0.4, saturated_fat: 0.1, protein: 10, sodium: 36, fiber: 0 },
+    warnings: { high_sugar: false, high_sodium: false, high_saturated_fat: false, allergens: ['Dairy'], additives: [] },
+    ingredients_analysis: { beneficial: ['cultured milk'], neutral: [], avoid: [] },
+    healthier_alternatives: [{ name: 'Plain curd with fruit', description: 'A simple homemade alternative without added sugar.' }],
+    image_url: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400',
+    barcode: 'global-curated-greek-yogurt',
+    brand: 'Chobani',
+    quantity: '170 g'
+  },
+  {
+    product_name: 'Kind Dark Chocolate Nuts & Sea Salt',
+    health_rating: 78,
+    health_grade: 'B',
+    grade_color: '#22c55e',
+    summary: 'A globally popular nut bar with useful fats and protein, though portion size still matters.',
+    nutrients: { calories: 480, sugars: 18, fat: 36, saturated_fat: 7, protein: 12, sodium: 320, fiber: 7 },
+    warnings: { high_sugar: true, high_sodium: false, high_saturated_fat: true, allergens: ['Tree Nuts'], additives: [] },
+    ingredients_analysis: { beneficial: ['almonds', 'peanuts'], neutral: ['dark chocolate'], avoid: ['added sugar'] },
+    healthier_alternatives: [{ name: 'Unsalted mixed nuts', description: 'Keeps the protein and fats while reducing added sugar.' }],
+    image_url: 'https://images.unsplash.com/photo-1604085792782-8d92f276d7d8?w=400',
+    barcode: 'global-curated-kind-bar',
+    brand: 'Kind',
+    quantity: '40 g'
+  },
+  {
+    product_name: 'Tata Sampann Unpolished Moong Dal',
+    health_rating: 94,
+    health_grade: 'A',
+    grade_color: '#22c55e',
+    summary: 'An Indian pantry staple with strong protein and fiber for everyday meals.',
+    nutrients: { calories: 347, sugars: 2, fat: 1.2, saturated_fat: 0.2, protein: 24, sodium: 15, fiber: 16 },
+    warnings: { high_sugar: false, high_sodium: false, high_saturated_fat: false, allergens: [], additives: [] },
+    ingredients_analysis: { beneficial: ['moong dal'], neutral: [], avoid: [] },
+    healthier_alternatives: [{ name: 'Sprouted moong', description: 'Adds freshness and can be used in salads or chaat.' }],
+    image_url: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=400',
+    barcode: 'global-curated-tata-moong',
+    brand: 'Tata Sampann',
+    quantity: '1 kg'
+  },
+  {
+    product_name: 'Saffola Masala Oats',
+    health_rating: 76,
+    health_grade: 'B',
+    grade_color: '#22c55e',
+    summary: 'An Indian instant oats product that scores better than many fried snacks, though sodium should be watched.',
+    nutrients: { calories: 380, sugars: 5, fat: 8, saturated_fat: 1.5, protein: 12, sodium: 560, fiber: 9 },
+    warnings: { high_sugar: false, high_sodium: true, high_saturated_fat: false, allergens: ['Gluten'], additives: [] },
+    ingredients_analysis: { beneficial: ['oats', 'vegetables'], neutral: ['spices'], avoid: ['excess salt'] },
+    healthier_alternatives: [{ name: 'Plain oats upma', description: 'More control over salt and vegetables.' }],
+    image_url: 'https://images.unsplash.com/photo-1517673132405-a56a62b18caf?w=400',
+    barcode: 'global-curated-saffola-oats',
+    brand: 'Saffola',
+    quantity: '500 g'
+  },
+  {
+    product_name: 'Alpro Unsweetened Soya Milk',
+    health_rating: 84,
+    health_grade: 'B',
+    grade_color: '#22c55e',
+    summary: 'A commonly used dairy alternative with low sugar and moderate protein.',
+    nutrients: { calories: 33, sugars: 0, fat: 1.8, saturated_fat: 0.3, protein: 3.3, sodium: 40, fiber: 0.6 },
+    warnings: { high_sugar: false, high_sodium: false, high_saturated_fat: false, allergens: ['Soy'], additives: [] },
+    ingredients_analysis: { beneficial: ['soya protein'], neutral: ['calcium'], avoid: [] },
+    healthier_alternatives: [{ name: 'Unsweetened fortified milk', description: 'Pick whichever fits your allergies and nutrition goals.' }],
+    image_url: 'https://images.unsplash.com/photo-1590111166710-85f2eb7197fa?w=400',
+    barcode: 'global-curated-alpro-soya',
+    brand: 'Alpro',
+    quantity: '1 L'
+  }
+];
+
+const shuffleArray = <T,>(items: T[]) => [...items].sort(() => Math.random() - 0.5);
 
 const hazardBadge: Record<string, string> = {
   'Low':      'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
@@ -160,19 +380,26 @@ function ProductCard({ product, onClick }: { product: Product; onClick: () => vo
 }
 
 function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
-  const { apiFetch } = useAuth();
+  const { apiFetch, activeMemberId } = useAuth();
   const [logging, setLogging] = useState(false);
   const [logged, setLogged] = useState(false);
 
   const handleLogSnack = async () => {
     setLogging(true);
     try {
-      // Log via barcode scan endpoint to save in history
-      await apiFetch(`/api/scan/barcode/${product.barcode}`);
+      await apiFetch('/api/consumption/log', {
+        method: 'POST',
+        body: JSON.stringify({
+          product_name: product.product_name,
+          calories: product.nutrients.calories || 0,
+          sugars: product.nutrients.sugars || 0,
+          sodium: product.nutrients.sodium || 0,
+          member_id: activeMemberId
+        })
+      });
       setLogged(true);
-    } catch {
-      // If barcode fails, we silently mark it logged (catalog lookup already ran analysis)
-      setLogged(true);
+    } catch (err) {
+      console.error('Failed to log catalog product:', err);
     } finally {
       setLogging(false);
     }
@@ -352,7 +579,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
               {logging ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Logging...</>
               ) : logged ? (
-                <><CheckCircle className="w-4 h-4" /> Logged to your History!</>
+                <><CheckCircle className="w-4 h-4" /> Logged to Today!</>
               ) : (
                 <><BarChart3 className="w-4 h-4" /> Log This Snack to Budget</>
               )}
@@ -412,27 +639,21 @@ export const ProductCatalog: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [featuredLoading, setFeaturedLoading] = useState(true);
   const popularSearches = [
-    'maggi', 'parle-g', 'amul', 'haldirams', 'kurkure',
-    'britannia', 'lays', 'cadbury', 'dabur', 'sunfeast'
+    'maggi', 'parle-g', 'amul', 'haldiram', 'kurkure',
+    'britannia', 'oats', 'greek yogurt', 'moong dal', 'nuts'
   ];
 
-  // Pick a random term on mount and load featured products
+  const loadFeaturedProducts = useCallback(() => {
+    setFeaturedLoading(true);
+    // Instantly load random products from the highly curated local pool instead of waiting for external APIs
+    const curatedPool = shuffleArray([...curatedGlobalHighRatedProducts, ...curatedIndianProducts]);
+    setFeaturedProducts(curatedPool.slice(0, 8));
+    setFeaturedLoading(false);
+  }, []);
+
   useEffect(() => {
-    const featuredTerms = [
-      'maggi', 'parle', 'amul', 'haldirams', 'britannia',
-      'lays', 'kurkure', 'bingo', 'sunfeast', 'dabur',
-      'mcdonald', 'nestle', 'cadbury', 'oreo', 'kelloggs'
-    ];
-    const randomTerm = featuredTerms[Math.floor(Math.random() * featuredTerms.length)];
-    apiFetch(`/api/scan/search?query=${randomTerm}&page=1`)
-      .then((data: any) => {
-        const all: Product[] = data.products || [];
-        const shuffled = all.sort(() => Math.random() - 0.5).slice(0, 8);
-        setFeaturedProducts(shuffled);
-      })
-      .catch(() => setFeaturedProducts([]))
-      .finally(() => setFeaturedLoading(false));
-  }, [apiFetch]);
+    loadFeaturedProducts();
+  }, [loadFeaturedProducts]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -502,9 +723,15 @@ export const ProductCatalog: React.FC = () => {
           {/* Featured products grid */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Featured Products</p>
+              <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Featured Picks</p>
               {!featuredLoading && featuredProducts.length > 0 && (
-                <span className="text-[10px] text-slate-400">Click any product for full details</span>
+                <button
+                  onClick={loadFeaturedProducts}
+                  className="flex items-center gap-1 text-[10px] font-bold text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  Shuffle Indian & global high-rated picks
+                </button>
               )}
             </div>
 

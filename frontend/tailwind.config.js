@@ -8,9 +8,9 @@ export default {
     extend: {
       colors: {
         health: {
-          excellent: '#22c55e', # Green
-          moderate: '#eab308',  # Yellow/Orange
-          poor: '#ef4444',      # Red
+          excellent: '#22c55e', // Green
+          moderate: '#eab308',  // Yellow/Orange
+          poor: '#ef4444',      // Red
         }
       }
     },

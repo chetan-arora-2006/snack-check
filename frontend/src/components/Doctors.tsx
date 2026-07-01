@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Card } from './UI/Card';
 import type { DoctorProfile, ConsultationDB } from '../schemas/doctor';
@@ -26,7 +26,7 @@ export const Doctors: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Fetch doctors list and user consultations
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const docsList: DoctorProfile[] = await apiFetch('/api/doctor/list');
       setDoctors(docsList);
@@ -36,11 +36,11 @@ export const Doctors: React.FC = () => {
     } catch (e: any) {
       setError(e.message || "Failed to load data.");
     }
-  };
+  }, [apiFetch]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleOpenBooking = (doc: DoctorProfile) => {
     setSelectedDoctor(doc);

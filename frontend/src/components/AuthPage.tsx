@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Activity, Mail, Lock, User, AlertCircle, Sparkles } from 'lucide-react';
 
@@ -19,6 +19,18 @@ export const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   // Load Google Identity Services script
+  const handleGoogleSuccess = useCallback(async (credential: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await loginWithGoogle(credential);
+    } catch (e: any) {
+      setError(e.message || "Google Sign-In failed.");
+    } finally {
+      setLoading(false);
+    }
+  }, [loginWithGoogle]);
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
@@ -52,21 +64,13 @@ export const AuthPage: React.FC = () => {
     return () => {
       try {
         document.head.removeChild(script);
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     };
-  }, []);
+  }, [handleGoogleSuccess]);
 
-  const handleGoogleSuccess = async (credential: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await loginWithGoogle(credential);
-    } catch (e: any) {
-      setError(e.message || "Google Sign-In failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   const handleDemoGoogleLogin = async () => {
     // Generate a mock token for backend verification bypass

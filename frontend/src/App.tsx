@@ -12,6 +12,7 @@ import { FamilyHealthPage } from './components/FamilyHealthPage';
 import { InvitePage } from './components/InvitePage';
 import { ProfilePage } from './components/ProfilePage';
 import { ProductCatalog } from './components/ProductCatalog';
+import { TodayConsumption } from './components/TodayConsumption';
 import type { ScanDB } from './schemas/scan';
 
 class ErrorBoundary extends React.Component<
@@ -96,6 +97,7 @@ const AppContent: React.FC = () => {
         {activeTab === 'invite' && <InvitePage />}
         {activeTab === 'profile' && <ProfilePage />}
         {activeTab === 'catalog' && <ProductCatalog />}
+        {activeTab === 'consumption' && <TodayConsumption setActiveTab={setActiveTab} />}
       </ErrorBoundary>
     </Layout>
   );

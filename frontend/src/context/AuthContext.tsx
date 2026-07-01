@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 
 export interface Biometrics {
   age?: number;
@@ -59,7 +59,8 @@ type signupPassword = string;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const API_BASE = "http://localhost:8000";
+// eslint-disable-next-line react-refresh/only-export-components
+export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -67,6 +68,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('sc_token');
+    setToken(null);
+    setUser(null);
+    setActiveMemberId(null);
+  }, []);
 
   // Synchronize token state with local storage and fetch profile
   useEffect(() => {
@@ -100,7 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     };
     initAuth();
-  }, [token]);
+  }, [token, logout]);
 
   const applyTheme = (t: 'light' | 'dark') => {
     if (t === 'dark') {
@@ -122,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
+  const apiFetch = useCallback(async (endpoint: string, options: RequestInit = {}) => {
     const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     const headers = new Headers(options.headers || {});
     
@@ -154,7 +162,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     return response.json();
-  };
+  }, [token, logout]);
 
   const login = async (email: string, password: loginPassword) => {
     setIsLoading(true);
@@ -233,12 +241,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('sc_token');
-    setToken(null);
-    setUser(null);
-    setActiveMemberId(null);
-  };
+  
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     try {
@@ -275,6 +278,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

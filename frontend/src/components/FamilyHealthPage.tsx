@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Card } from './UI/Card';
 import { UserRound, Heart, ShieldAlert, Sparkles, Check } from 'lucide-react';
@@ -8,7 +8,7 @@ export const FamilyHealthPage: React.FC = () => {
   const [linkedMembers, setLinkedMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchLinkedMembers = async () => {
+  const fetchLinkedMembers = useCallback(async () => {
     setLoading(false);
     setLoading(true);
     try {
@@ -19,11 +19,11 @@ export const FamilyHealthPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiFetch]);
 
   useEffect(() => {
     fetchLinkedMembers();
-  }, []);
+  }, [fetchLinkedMembers]);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-300">

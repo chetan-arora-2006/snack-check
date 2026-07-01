@@ -1,34 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus, AtSign, Check, AlertCircle, Trash2, Shield } from 'lucide-react';
+import { UserPlus, AtSign, Check, AlertCircle, Trash2, Shield, X, Clock } from 'lucide-react';
 import { Card } from './UI/Card';
+
+interface FamilyInvite {
+  id: string;
+  name: string;
+  email: string;
+  picture?: string;
+  nametag?: string;
+}
 
 export const InvitePage: React.FC = () => {
   const { user, apiFetch, updateProfile } = useAuth();
   const [nametagInput, setNametagInput] = useState(user?.nametag || '');
   const [searchTag, setSearchTag] = useState('');
   const [linkedMembers, setLinkedMembers] = useState<any[]>([]);
+  const [incomingInvites, setIncomingInvites] = useState<FamilyInvite[]>([]);
+  const [outgoingInvites, setOutgoingInvites] = useState<FamilyInvite[]>([]);
   const [loadingLinked, setLoadingLinked] = useState(false);
   const [errorTag, setErrorTag] = useState('');
   const [successTag, setSuccessTag] = useState('');
   const [errorSearch, setErrorSearch] = useState('');
   const [successSearch, setSuccessSearch] = useState('');
 
-  const fetchLinkedMembers = async () => {
+  const fetchLinkedMembers = useCallback(async () => {
     setLoadingLinked(true);
     try {
-      const data = await apiFetch('/api/user/family/linked');
-      setLinkedMembers(data);
+      const [linked, invites] = await Promise.all([
+        apiFetch('/api/user/family/linked'),
+        apiFetch('/api/user/family/invites')
+      ]);
+      setLinkedMembers(linked);
+      setIncomingInvites(invites.incoming || []);
+      setOutgoingInvites(invites.outgoing || []);
     } catch (err) {
-      console.error('Failed to load linked family members:', err);
+      console.error('Failed to load family members:', err);
     } finally {
       setLoadingLinked(false);
     }
-  };
+  }, [apiFetch]);
 
   useEffect(() => {
     fetchLinkedMembers();
-  }, []);
+  }, [fetchLinkedMembers]);
 
   const handleSaveNametag = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,13 +85,27 @@ export const InvitePage: React.FC = () => {
         method: 'POST',
         body: JSON.stringify({ nametag: query }),
       });
-      setSuccessSearch(`Successfully linked with @${query}!`);
+      setSuccessSearch(`Invite sent to @${query}. They can accept or reject it from this page.`);
       setSearchTag('');
       fetchLinkedMembers();
       // Sync local profile state
       await updateProfile({});
     } catch (err: any) {
       setErrorSearch(err.message || 'Failed to find or link member.');
+    }
+  };
+
+  const handleInviteAction = async (inviteId: string, action: 'accept' | 'reject' | 'cancel') => {
+    try {
+      if (action === 'cancel') {
+        await apiFetch(`/api/user/family/invites/${inviteId}`, { method: 'DELETE' });
+      } else {
+        await apiFetch(`/api/user/family/invites/${inviteId}/${action}`, { method: 'POST' });
+      }
+      fetchLinkedMembers();
+      await updateProfile({});
+    } catch (err: any) {
+      alert(err.message || `Failed to ${action} invite.`);
     }
   };
 
@@ -104,7 +133,7 @@ export const InvitePage: React.FC = () => {
           Invite & Link Family
         </h2>
         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-          Select your unique nametag and link with other family members to evaluate and share snack logs.
+          Select your unique nametag, send family requests, and accept or reject incoming profile invites.
         </p>
       </div>
 
@@ -173,7 +202,7 @@ export const InvitePage: React.FC = () => {
 
             <form onSubmit={handleLinkMember} className="space-y-4">
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Enter your family member's unique nametag below to send an immediate connection and synchronize health record audits.
+                Enter your family member's unique nametag below to send a request. They must accept before profiles are linked.
               </p>
 
               <div className="flex gap-2">
@@ -189,7 +218,7 @@ export const InvitePage: React.FC = () => {
                   type="submit"
                   className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition-all cursor-pointer shadow-md shadow-emerald-500/10"
                 >
-                  Link Profile
+                  Send Invite
                 </button>
               </div>
 
@@ -207,6 +236,74 @@ export const InvitePage: React.FC = () => {
                 </div>
               )}
             </form>
+          </Card>
+
+          {/* Pending invites */}
+          <Card className="p-6 border border-slate-850">
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-teal-500" />
+              Family Invites
+            </h3>
+
+            <div className="space-y-5">
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Incoming Requests</p>
+                {incomingInvites.length > 0 ? (
+                  <div className="space-y-2">
+                    {incomingInvites.map(invite => (
+                      <div key={invite.id} className="p-3 bg-slate-950/40 border border-slate-850 rounded-2xl flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-bold text-xs text-slate-100 truncate">{invite.name}</p>
+                          <p className="text-[10px] text-teal-400 font-semibold mt-0.5">@{invite.nametag || 'no_tag'}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleInviteAction(invite.id, 'accept')}
+                            className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 transition-colors"
+                            title="Accept invite"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleInviteAction(invite.id, 'reject')}
+                            className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500/20 transition-colors"
+                            title="Reject invite"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500">No incoming requests.</p>
+                )}
+              </div>
+
+              <div>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Sent Requests</p>
+                {outgoingInvites.length > 0 ? (
+                  <div className="space-y-2">
+                    {outgoingInvites.map(invite => (
+                      <div key={invite.id} className="p-3 bg-slate-950/40 border border-slate-850 rounded-2xl flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-bold text-xs text-slate-100 truncate">{invite.name}</p>
+                          <p className="text-[10px] text-indigo-400 font-semibold mt-0.5">@{invite.nametag || 'no_tag'}</p>
+                        </div>
+                        <button
+                          onClick={() => handleInviteAction(invite.id, 'cancel')}
+                          className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:border-rose-500/40 hover:text-rose-400 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-500">No sent requests waiting.</p>
+                )}
+              </div>
+            </div>
           </Card>
         </div>
 

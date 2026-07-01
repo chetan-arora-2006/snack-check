@@ -7,6 +7,7 @@ from app.api.user import router as user_router
 from app.api.consumption import router as consumption_router
 from app.api.chatbot import router as chatbot_router
 from app.core.database import seed_doctors
+from app.core.config import settings
 import uvicorn
 
 app = FastAPI(
@@ -18,7 +19,7 @@ app = FastAPI(
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Adjust in production to frontend domain only
+    allow_origins=[settings.frontend_url] if settings.frontend_url else ["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,4 +47,4 @@ async def root():
     }
 
 if __name__ == "__main__":
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=(settings.environment == "development"))

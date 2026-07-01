@@ -66,6 +66,49 @@ def format_scan_db(doc: dict) -> ScanDB:
         created_at=doc["created_at"]
     )
 
+async def get_member_profile_data(current_user: Optional[dict], member_id: Optional[str]) -> Optional[dict]:
+    """Extract scan personalization data for the primary user, local child profile, or linked family user."""
+    if not current_user:
+        return None
+
+    if member_id:
+        members = current_user.get("family_members", [])
+        member = next((m for m in members if m["id"] == member_id), None)
+        if member:
+            return {
+                "name": member["name"],
+                "allergies": member.get("allergies", []),
+                "medical_conditions": member.get("medical_conditions", []),
+                "health_goals": [],
+                "biometrics": None
+            }
+
+        if member_id in current_user.get("linked_family_members", []):
+            try:
+                linked_user = await users_col.find_one({"_id": ObjectId(member_id)})
+                if linked_user:
+                    return {
+                        "name": linked_user.get("name", ""),
+                        "email": linked_user.get("email"),
+                        "allergies": linked_user.get("allergies", []),
+                        "health_goals": linked_user.get("health_goals", []),
+                        "biometrics": linked_user.get("biometrics"),
+                        "medical_conditions": linked_user.get("medical_conditions", [])
+                    }
+            except Exception:
+                return None
+
+        return None
+
+    return {
+        "name": current_user["name"],
+        "email": current_user.get("email"),
+        "allergies": current_user.get("allergies", []),
+        "health_goals": current_user.get("health_goals", []),
+        "biometrics": current_user.get("biometrics"),
+        "medical_conditions": current_user.get("medical_conditions", [])
+    }
+
 @router.post("/upload", response_model=ScanDB)
 async def upload_scan(
     payload: ScanUpload, 
@@ -79,30 +122,7 @@ async def upload_scan(
     ext = mime.split("/")[-1] if "/" in mime else "jpg"
     filename = f"scan_{int(datetime.utcnow().timestamp())}.{ext}"
 
-    # Extract user profile context
-    profile_data = None
-    if current_user:
-        if member_id:
-            # find family member details
-            members = current_user.get("family_members", [])
-            member = next((m for m in members if m["id"] == member_id), None)
-            if member:
-                profile_data = {
-                    "name": member["name"],
-                    "allergies": member["allergies"],
-                    "medical_conditions": member["medical_conditions"],
-                    "health_goals": [],
-                    "biometrics": None
-                }
-        else:
-            profile_data = {
-                "name": current_user["name"],
-                "email": current_user.get("email"),
-                "allergies": current_user.get("allergies", []),
-                "health_goals": current_user.get("health_goals", []),
-                "biometrics": current_user.get("biometrics"),
-                "medical_conditions": current_user.get("medical_conditions", [])
-            }
+    profile_data = await get_member_profile_data(current_user, member_id)
 
     # Call Gemini image analysis service with profile context
     analysis_result = await analyze_label_image(clean_b64, mime, profile_data)
@@ -426,29 +446,7 @@ async def scan_barcode(
         }
     }
 
-    # Extract user profile context
-    profile_data = None
-    if current_user:
-        if member_id:
-            members = current_user.get("family_members", [])
-            member = next((m for m in members if m["id"] == member_id), None)
-            if member:
-                profile_data = {
-                    "name": member["name"],
-                    "allergies": member["allergies"],
-                    "medical_conditions": member["medical_conditions"],
-                    "health_goals": [],
-                    "biometrics": None
-                }
-        else:
-            profile_data = {
-                "name": current_user["name"],
-                "email": current_user.get("email"),
-                "allergies": current_user.get("allergies", []),
-                "health_goals": current_user.get("health_goals", []),
-                "biometrics": current_user.get("biometrics"),
-                "medical_conditions": current_user.get("medical_conditions", [])
-            }
+    profile_data = await get_member_profile_data(current_user, member_id)
 
     # Analyze raw database values via local rule-based engine (bypassing AI/Gemini)
     analysis_result = evaluate_product_rule_based(product_payload, profile_data)
@@ -468,35 +466,11 @@ async def scan_barcode(
 
     return format_scan_db(scan_doc)
 
-def get_profile_data_context(current_user: Optional[dict], member_id: Optional[str]) -> Optional[dict]:
-    """Helper to extract the active user or family member profile for rule-based evaluation."""
-    if not current_user:
-        return None
-    if member_id:
-        members = current_user.get("family_members", [])
-        member = next((m for m in members if m["id"] == member_id), None)
-        if member:
-            return {
-                "name": member["name"],
-                "allergies": member.get("allergies", []),
-                "medical_conditions": member.get("medical_conditions", []),
-                "health_goals": [],
-                "biometrics": None
-            }
-    return {
-        "name": current_user["name"],
-        "email": current_user.get("email"),
-        "allergies": current_user.get("allergies", []),
-        "health_goals": current_user.get("health_goals", []),
-        "biometrics": current_user.get("biometrics"),
-        "medical_conditions": current_user.get("medical_conditions", [])
-    }
-
-
 @router.get("/search")
 async def search_products(
     query: str = Query(..., min_length=1),
     page: int = Query(1, ge=1),
+    country: Optional[str] = Query(None, description="Optional country filter, e.g. india"),
     member_id: Optional[str] = Query(None),
     current_user: Optional[dict] = Depends(get_current_user_optional)
 ):
@@ -513,7 +487,7 @@ async def search_products(
         "Accept": "application/json"
     }
 
-    profile_data = get_profile_data_context(current_user, member_id)
+    profile_data = await get_member_profile_data(current_user, member_id)
     products_raw = []
 
     query_stripped = query.strip()
@@ -523,7 +497,7 @@ async def search_products(
         async with httpx.AsyncClient(timeout=15.0) as client:
             if is_barcode:
                 # Direct barcode lookup — much more reliable than search
-                url = f"https://world.openfoodfacts.org/api/v2/product/{query_stripped}.json?fields=code,product_name,product_name_en,brands,image_front_small_url,image_front_url,ingredients_text,ingredients_text_en,nutriments,nutriscore_grade,allergens_tags,additives_tags,quantity"
+                url = f"https://world.openfoodfacts.org/api/v2/product/{query_stripped}.json?fields=code,product_name,product_name_en,brands,image_front_small_url,image_front_url,ingredients_text,ingredients_text_en,nutriments,nutriscore_grade,allergens_tags,additives_tags,quantity,countries_tags"
                 r = await client.get(url, headers=headers)
                 if r.status_code == 200:
                     data = r.json()
@@ -539,8 +513,10 @@ async def search_products(
                     f"&fields=code,product_name,product_name_en,brands,"
                     f"image_front_small_url,image_front_url,ingredients_text,"
                     f"ingredients_text_en,nutriments,nutriscore_grade,"
-                    f"allergens_tags,additives_tags,quantity"
+                    f"allergens_tags,additives_tags,quantity,countries_tags"
                 )
+                if country:
+                    url += f"&countries_tags_en={quote(country.strip().lower())}"
                 r = await client.get(url, headers=headers)
                 if r.status_code == 200:
                     data = r.json()
@@ -552,6 +528,12 @@ async def search_products(
 
     results = []
     for p in products_raw:
+        if country:
+            country_tags = [str(tag).lower() for tag in p.get("countries_tags", [])]
+            country_text = " ".join(country_tags)
+            if country.strip().lower() not in country_text:
+                continue
+
         product_name = (
             p.get("product_name")
             or p.get("product_name_en")
@@ -597,9 +579,32 @@ async def search_products(
 
 
 @router.get("/history", response_model=List[ScanDB])
-async def get_scan_history(current_user: dict = Depends(get_current_user)):
-    """Retrieves all scans associated with the logged-in user, newest first."""
-    cursor = scans_col.find({"user_id": current_user["id"]}).sort("created_at", -1)
+async def get_scan_history(
+    member_id: Optional[str] = Query(None, description="Optional family member ID to query"),
+    current_user: dict = Depends(get_current_user)
+):
+    """Retrieves all scans associated with the logged-in user or a specific family member, newest first."""
+    if member_id:
+        if member_id in current_user.get("linked_family_members", []):
+            query = {
+                "$or": [
+                    {"user_id": current_user["id"], "member_id": member_id},
+                    {"user_id": member_id, "member_id": None},
+                    {"user_id": member_id, "member_id": member_id}
+                ]
+            }
+        else:
+            query = {
+                "user_id": current_user["id"],
+                "member_id": member_id
+            }
+    else:
+        query = {
+            "user_id": current_user["id"],
+            "member_id": None
+        }
+
+    cursor = scans_col.find(query).sort("created_at", -1)
     scans = await cursor.to_list(length=100)
     return [format_scan_db(s) for s in scans]
 

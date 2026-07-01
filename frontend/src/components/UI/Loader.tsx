@@ -19,7 +19,7 @@ export const Loader: React.FC<LoaderProps> = ({ imageSrc }) => {
       setStep((prev) => (prev + 1) % steps.length);
     }, 2500);
     return () => clearInterval(interval);
-  }, []);
+  }, [steps.length]);
 
   return (
     <div className="flex flex-col items-center justify-center p-8 max-w-md mx-auto text-center">

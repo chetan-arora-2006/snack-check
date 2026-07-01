@@ -61,7 +61,9 @@ async def signup(payload: UserRegister):
         "biometrics": None,
         "medical_conditions": [],
         "daily_limits": None,
-        "family_members": []
+        "family_members": [],
+        "linked_family_members": [],
+        "pending_family_invites": []
     }
     
     res = await users_col.insert_one(user_doc)
@@ -135,7 +137,9 @@ async def google_login(payload: GoogleLogin):
             "biometrics": None,
             "medical_conditions": [],
             "daily_limits": None,
-            "family_members": []
+            "family_members": [],
+            "linked_family_members": [],
+            "pending_family_invites": []
         }
         res = await users_col.insert_one(user_doc)
         user_doc["_id"] = res.inserted_id

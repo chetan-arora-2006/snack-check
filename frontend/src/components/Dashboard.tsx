@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Card } from './UI/Card';
 import type { ScanDB } from '../schemas/scan';
@@ -53,15 +53,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab, setSelectedS
     "Saturated vs Unsaturated Fats: Keep saturated fats low (less than 5g per 100g) and prefer products rich in dietary fiber from flax and chia seeds."
   ];
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
-      // Fetch scans matching user
-      const scans: ScanDB[] = await apiFetch('/api/scan/history');
+      const scanUrl = `/api/scan/history${activeMemberId ? `?member_id=${activeMemberId}` : ''}`;
+      const scans: ScanDB[] = await apiFetch(scanUrl);
       
-      // Filter scans by active member if profile is switched
-      const filteredScans = activeMemberId 
-        ? scans.filter(s => s.member_id === activeMemberId) 
-        : scans.filter(s => !s.member_id);
+      const filteredScans = scans;
 
       setRecentScans(filteredScans.slice(0, 3));
       
@@ -81,9 +78,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab, setSelectedS
     } catch (err) {
       console.error("Failed to load dashboard data:", err);
     }
-  };
+  }, [apiFetch, activeMemberId]);
 
-  const fetchBudget = async () => {
+  const fetchBudget = useCallback(async () => {
     try {
       const url = `/api/consumption/daily${activeMemberId ? `?member_id=${activeMemberId}` : ''}`;
       const data = await apiFetch(url);
@@ -91,12 +88,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab, setSelectedS
     } catch (err) {
       console.error("Failed to fetch daily budget metrics:", err);
     }
-  };
+  }, [apiFetch, activeMemberId]);
 
   useEffect(() => {
     fetchDashboardData();
     fetchBudget();
-  }, [activeMemberId]);
+  }, [fetchDashboardData, fetchBudget]);
 
   useEffect(() => {
     // Rotate health tips every 8 seconds
@@ -104,7 +101,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab, setSelectedS
       setHealthTipIndex((prev) => (prev + 1) % healthTips.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [healthTips.length]);
 
   const handleLogConsumption = async (e: React.MouseEvent, scan: ScanDB) => {
     e.stopPropagation(); // Stop navigation click
@@ -205,11 +202,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab, setSelectedS
 
       {/* Daily Limits Budget Rings */}
       {budget && (
-        <Card className="p-6 border-slate-800">
-          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-200 mb-6 flex items-center gap-2">
-            <Coffee className="w-5 h-5 text-emerald-400" />
-            Today's Consumption Tracker Budget
-          </h3>
+        <Card
+          hoverable
+          onClick={() => setActiveTab('consumption')}
+          className="p-6 border-slate-800"
+        >
+          <div className="flex items-center justify-between gap-4 mb-6">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-200 flex items-center gap-2">
+              <Coffee className="w-5 h-5 text-emerald-400" />
+              Today's Consumption Tracker Budget
+            </h3>
+            <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+              View foods <ChevronRight className="w-4 h-4" />
+            </span>
+          </div>
           <div className="grid grid-cols-3 gap-4">
             <CircularProgress
               percentage={budget.calories.percentage}

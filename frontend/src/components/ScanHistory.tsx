@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Card } from './UI/Card';
 import type { ScanDB } from '../schemas/scan';
@@ -22,25 +22,25 @@ interface ScanHistoryProps {
 }
 
 export const ScanHistory: React.FC<ScanHistoryProps> = ({ selectedScan, setSelectedScan }) => {
-  const { apiFetch, user } = useAuth();
+  const { apiFetch, user, activeMemberId } = useAuth();
   const [scans, setScans] = useState<ScanDB[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [gradeFilter, setGradeFilter] = useState<string>('All');
   const [error, setError] = useState<string | null>(null);
 
   // Fetch scan history
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     try {
-      const historyList: ScanDB[] = await apiFetch('/api/scan/history');
+      const historyList: ScanDB[] = await apiFetch('/api/scan/history' + (activeMemberId ? `?member_id=${activeMemberId}` : ''));
       setScans(historyList);
     } catch (e: any) {
       setError(e.message || "Failed to load scan history.");
     }
-  };
+  }, [apiFetch, activeMemberId]);
 
   useEffect(() => {
     loadHistory();
-  }, []);
+  }, [loadHistory]);
 
   const handleDeleteScan = async (scanId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent opening modal

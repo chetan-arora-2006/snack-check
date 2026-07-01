@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Query
-from app.schemas.scan import ScanUpload, ScanDB, ScanReport
-from app.services.gemini import analyze_label_image, analyze_label_text
+from app.schemas.scan import ScanUpload, ScanDB
+from app.services.gemini import analyze_label_image
 from app.core.database import scans_col, users_col
 from app.core.security import get_current_user, oauth2_scheme
 from app.core.config import settings
@@ -13,7 +13,6 @@ import io
 from PIL import Image
 from typing import List, Optional
 import re
-import json
 
 router = APIRouter(prefix="/scan", tags=["Scanner"])
 
@@ -168,9 +167,7 @@ def evaluate_product_rule_based(product_payload: dict, profile_data: dict = None
         except ValueError:
             return 0.0
 
-    cal_val = to_float(calories)
     sugars_val = to_float(sugars)
-    fat_val = to_float(fat)
     sat_fat_val = to_float(sat_fat)
     protein_val = to_float(protein)
     sodium_val = to_float(sodium)

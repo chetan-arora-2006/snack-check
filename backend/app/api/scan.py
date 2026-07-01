@@ -22,7 +22,7 @@ async def get_current_user_optional(token: str = Depends(oauth2_scheme)) -> Opti
         return None
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=["HS256"])
-        user_id: str = payload.get("sub")
+        user_id: Optional[str] = payload.get("sub")
         if user_id:
             user = await users_col.find_one({"_id": ObjectId(user_id)})
             if user:
@@ -141,7 +141,7 @@ async def upload_scan(
 
     return format_scan_db(scan_doc)
 
-def evaluate_product_rule_based(product_payload: dict, profile_data: dict = None) -> dict:
+def evaluate_product_rule_based(product_payload: dict, profile_data: Optional[dict] = None) -> dict:
     """
     Evaluates product details fetched from the barcode API without calling any LLMs.
     Performs deterministic, rule-based ingredient checks, allergen comparisons,

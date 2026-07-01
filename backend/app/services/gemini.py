@@ -4,10 +4,11 @@ import asyncio
 import random
 from app.core.config import settings
 import logging
+from typing import Optional
 
 logger = logging.getLogger("snackcheck")
 
-async def analyze_label_image(base64_image: str, mime_type: str, user_profile: dict = None) -> dict:
+async def analyze_label_image(base64_image: str, mime_type: str, user_profile: Optional[dict] = None) -> dict:
     """
     Sends the base64-encoded image of the food label to Gemini API.
     Injects the active user's profile settings to return custom grades, warning indicators, and allergen alerts.
@@ -418,7 +419,7 @@ def get_mock_chatbot_response(chat_history: list, user_profile: dict) -> str:
     return random.choice(responses)
 
 
-async def analyze_label_text(product_data: dict, user_profile: dict = None) -> dict:
+async def analyze_label_text(product_data: dict, user_profile: Optional[dict] = None) -> dict:
     """
     Sends raw ingredients and nutrient values fetched from the barcode database 
     to Gemini API and requests a structured JSON health rating report.

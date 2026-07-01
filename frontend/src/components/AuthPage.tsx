@@ -23,6 +23,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Modal states for dummy links
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+
   // Load Google Identity Services script
   const handleGoogleSuccess = useCallback(async (credential: string) => {
     setLoading(true);
@@ -229,7 +233,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
                   className="mt-1 w-4 h-4 bg-slate-900 border-slate-700 rounded text-emerald-500 focus:ring-emerald-500/20"
                 />
                 <label htmlFor="terms" className="text-xs text-slate-400 leading-relaxed">
-                  I agree to the SnackCheck <a href="#" className="text-emerald-400 hover:underline">Terms of Service</a> and <a href="#" className="text-emerald-400 hover:underline">Privacy Policy</a>, and consent to having my dietary data processed for personalized AI recommendations.
+                  I agree to the SnackCheck <button type="button" onClick={() => setShowTerms(true)} className="text-emerald-400 hover:underline bg-transparent border-none p-0 cursor-pointer">Terms of Service</button> and <button type="button" onClick={() => setShowPrivacy(true)} className="text-emerald-400 hover:underline bg-transparent border-none p-0 cursor-pointer">Privacy Policy</button>, and consent to having my dietary data processed for personalized AI recommendations.
                 </label>
               </div>
             )}
@@ -267,6 +271,54 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Terms Modal */}
+      {showTerms && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowTerms(false)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h3 className="text-xl font-bold text-slate-100 mb-4">Terms of Service</h3>
+            <div className="text-sm text-slate-400 space-y-3 max-h-60 overflow-y-auto pr-2">
+              <p>Welcome to SnackCheck!</p>
+              <p>1. By using our service, you agree that the AI-generated health scores and food analysis are for informational purposes only and do not constitute medical advice.</p>
+              <p>2. We are not liable for any allergic reactions or health issues arising from inaccuracies in the AI analysis or missing information on product labels.</p>
+              <p>3. Always consult with a registered dietitian or doctor before making drastic dietary changes based on our app's recommendations.</p>
+            </div>
+            <button onClick={() => setShowTerms(false)} className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold transition-colors">
+              I Understand
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Privacy Policy Modal */}
+      {showPrivacy && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowPrivacy(false)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h3 className="text-xl font-bold text-slate-100 mb-4">Privacy Policy</h3>
+            <div className="text-sm text-slate-400 space-y-3 max-h-60 overflow-y-auto pr-2">
+              <p>Your privacy is critically important to us.</p>
+              <p>1. <strong>Data Collection:</strong> We collect your dietary preferences, allergy information, and consumption history to provide personalized AI recommendations.</p>
+              <p>2. <strong>AI Processing:</strong> Images of food labels you upload are processed securely. We do not sell your biometric or dietary data to third-party advertisers.</p>
+              <p>3. <strong>Security:</strong> All passwords and sensitive information are securely hashed. We use industry-standard encryption for data at rest and in transit.</p>
+            </div>
+            <button onClick={() => setShowPrivacy(false)} className="mt-6 w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-semibold transition-colors">
+              I Understand
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

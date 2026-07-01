@@ -20,9 +20,10 @@ interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onGoHome?: () => void;
 }
 
-export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
+export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab, onGoHome }) => {
   const { 
     user, 
     logout, 
@@ -68,7 +69,13 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
       <div className="w-full max-w-7xl mx-auto px-4 pt-4 md:px-8 sticky top-0 z-40">
         <header className="glass rounded-full px-6 py-3 flex items-center justify-between border border-slate-850 shadow-md">
           {/* Logo */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('dashboard')}>
+          <div 
+            className="flex items-center gap-3 cursor-pointer" 
+            onClick={() => {
+              if (onGoHome) onGoHome();
+              else setActiveTab('dashboard');
+            }}
+          >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-500/20">
               <Activity className="w-5 h-5 text-white" />
             </div>

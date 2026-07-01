@@ -57,6 +57,7 @@ class ErrorBoundary extends React.Component<
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
+  const [showLanding, setShowLanding] = useState(false);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [selectedScan, setSelectedScan] = useState<ScanDB | null>(null);
 
@@ -76,11 +77,15 @@ const AppContent: React.FC = () => {
     if (showAuth) {
       return <AuthPage onBack={() => setShowAuth(false)} />;
     }
-    return <LandingPage onSignIn={() => setShowAuth(true)} />;
+    return <LandingPage onAction={() => setShowAuth(true)} isAuthenticated={false} />;
+  }
+
+  if (showLanding) {
+    return <LandingPage onAction={() => setShowLanding(false)} isAuthenticated={true} />;
   }
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab} onGoHome={() => setShowLanding(true)}>
       <ErrorBoundary>
         {activeTab === 'dashboard' && (
           <Dashboard 

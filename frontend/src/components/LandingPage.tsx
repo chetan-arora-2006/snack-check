@@ -2,10 +2,11 @@ import React from 'react';
 import { ScanLine, MessageSquareHeart, Users, ShieldAlert, ArrowRight, HeartPulse, Activity } from 'lucide-react';
 
 interface LandingPageProps {
-  onSignIn: () => void;
+  onAction: () => void;
+  isAuthenticated?: boolean;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onAction, isAuthenticated = false }) => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-emerald-500/30">
       
@@ -20,10 +21,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn }) => {
             <span className="text-xl font-bold tracking-tight text-white">SnackCheck</span>
           </button>
           <button 
-            onClick={onSignIn}
+            onClick={onAction}
             className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white transition-colors"
           >
-            Sign In
+            {isAuthenticated ? 'Dashboard' : 'Sign In'}
           </button>
         </div>
       </nav>
@@ -53,10 +54,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn }) => {
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button 
-              onClick={onSignIn}
+              onClick={onAction}
               className="w-full sm:w-auto px-8 py-4 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold rounded-2xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25"
             >
-              Start Scanning Free
+              {isAuthenticated ? 'Go to Dashboard' : 'Start Scanning Free'}
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -176,10 +177,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSignIn }) => {
             Join thousands of others making informed, healthier decisions every day.
           </p>
           <button 
-            onClick={onSignIn}
+            onClick={onAction}
             className="px-10 py-5 bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold text-lg rounded-2xl transition-all shadow-xl shadow-emerald-500/20"
           >
-            Create Your Free Account
+            {isAuthenticated ? 'Go to Dashboard' : 'Create Your Free Account'}
           </button>
         </div>
       </section>

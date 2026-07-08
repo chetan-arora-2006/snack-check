@@ -34,7 +34,8 @@ def format_user_profile(user_doc: dict) -> UserProfile:
         daily_limits=limits,
         family_members=family_members,
         nametag=user_doc.get("nametag"),
-        linked_family_members=user_doc.get("linked_family_members", [])
+        linked_family_members=user_doc.get("linked_family_members", []),
+        weekly_report=user_doc.get("weekly_report")
     )
 
 @router.post("/signup", response_model=Token, status_code=status.HTTP_201_CREATED)
@@ -63,7 +64,8 @@ async def signup(payload: UserRegister):
         "daily_limits": None,
         "family_members": [],
         "linked_family_members": [],
-        "pending_family_invites": []
+        "pending_family_invites": [],
+        "weekly_report": None
     }
     
     res = await users_col.insert_one(user_doc)
@@ -139,7 +141,8 @@ async def google_login(payload: GoogleLogin):
             "daily_limits": None,
             "family_members": [],
             "linked_family_members": [],
-            "pending_family_invites": []
+            "pending_family_invites": [],
+            "weekly_report": None
         }
         res = await users_col.insert_one(user_doc)
         user_doc["_id"] = res.inserted_id

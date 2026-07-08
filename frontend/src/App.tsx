@@ -7,7 +7,7 @@ import { LandingPage } from './components/LandingPage';
 const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
 const Scanner = lazy(() => import('./components/Scanner').then(m => ({ default: m.Scanner })));
 const ScanHistory = lazy(() => import('./components/ScanHistory').then(m => ({ default: m.ScanHistory })));
-const Doctors = lazy(() => import('./components/Doctors').then(m => ({ default: m.Doctors })));
+const Analytics = lazy(() => import('./components/Analytics').then(m => ({ default: m.Analytics })));
 const SettingsPage = lazy(() => import('./components/SettingsPage').then(m => ({ default: m.SettingsPage })));
 const Chatbot = lazy(() => import('./components/Chatbot').then(m => ({ default: m.Chatbot })));
 const FamilyHealthPage = lazy(() => import('./components/FamilyHealthPage').then(m => ({ default: m.FamilyHealthPage })));
@@ -109,7 +109,7 @@ const AppContent: React.FC = () => {
               setSelectedScan={setSelectedScan} 
             />
           )}
-          {activeTab === 'doctors' && <Doctors />}
+          {activeTab === 'analytics' && <Analytics />}
           {activeTab === 'chatbot' && <Chatbot />}
           {activeTab === 'settings' && <SettingsPage />}
           {activeTab === 'family' && <FamilyHealthPage />}

@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.auth import router as auth_router
 from app.api.scan import router as scan_router
-from app.api.doctor import router as doctor_router
+from app.api.analytics import router as analytics_router
 from app.api.user import router as user_router
 from app.api.consumption import router as consumption_router
 from app.api.chatbot import router as chatbot_router
-from app.core.database import seed_doctors
+# Database setup
 from app.core.config import settings
 import uvicorn
 
@@ -54,15 +54,15 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Register routes under /api
 app.include_router(auth_router, prefix="/api")
 app.include_router(scan_router, prefix="/api")
-app.include_router(doctor_router, prefix="/api")
+app.include_router(analytics_router, prefix="/api")
 app.include_router(user_router, prefix="/api")
 app.include_router(consumption_router, prefix="/api")
 app.include_router(chatbot_router, prefix="/api")
 
 @app.on_event("startup")
 async def startup_event():
-    """Run startup seeding script to pre-populate nutritionist/doctor records."""
-    await seed_doctors()
+    """Startup events"""
+    pass
 
 @app.get("/api/health")
 async def health_check():

@@ -59,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTa
     { id: 'scanner', label: 'Scanner', icon: Camera },
     { id: 'catalog', label: 'Catalog', icon: Search },
     { id: 'history', label: 'History', icon: History },
-    { id: 'doctors', label: 'Consultants', icon: UserRound },
+    { id: 'analytics', label: 'Progress', icon: Activity },
     { id: 'chatbot', label: 'Coach Chat', icon: MessageSquare },
   ];
 

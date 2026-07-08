@@ -35,6 +35,7 @@ export interface UserProfile {
   family_members: FamilyMember[];
   nametag?: string;
   linked_family_members: string[];
+  weekly_report?: any;
 }
 
 interface AuthContextType {

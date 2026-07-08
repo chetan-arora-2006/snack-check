@@ -45,6 +45,7 @@ class UserProfile(BaseModel):
     family_members: List[FamilyMember] = Field(default_factory=list)
     nametag: Optional[str] = None
     linked_family_members: List[str] = Field(default_factory=list)
+    weekly_report: Optional[dict] = None
 
     class Config:
         from_attributes = True
@@ -61,6 +62,7 @@ class UserProfileUpdate(BaseModel):
     family_members: Optional[List[FamilyMember]] = None
     nametag: Optional[str] = None
     linked_family_members: Optional[List[str]] = None
+    weekly_report: Optional[dict] = None
 
 class Token(BaseModel):
     access_token: str

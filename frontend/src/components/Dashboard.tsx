@@ -4,7 +4,6 @@ import { Card } from './UI/Card';
 import type { ScanDB } from '../schemas/scan';
 import { 
   PlusCircle, 
-  UserSquare2, 
   Activity, 
   Calendar, 
   ShieldAlert, 
@@ -306,15 +305,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ setActiveTab, setSelectedS
               </div>
 
               <div
-                onClick={() => setActiveTab('doctors')}
+                onClick={() => setActiveTab('analytics')}
                 className="group border border-blue-100 dark:border-slate-800 bg-blue-50 dark:bg-slate-900/20 hover:bg-blue-100 dark:hover:bg-slate-900/40 p-6 rounded-3xl cursor-pointer transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between h-44 shadow-sm"
               >
                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <UserSquare2 className="w-5 h-5" />
+                  <Activity className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-slate-900 dark:text-slate-100 text-lg group-hover:text-blue-400 transition-colors">Consult a Nutritionist</h4>
-                  <p className="text-xs text-slate-400 mt-1">Schedule online appointments with registered professional dietitians.</p>
+                  <h4 className="font-bold text-slate-900 dark:text-slate-100 text-lg group-hover:text-blue-400 transition-colors">Progress & Analytics</h4>
+                  <p className="text-xs text-slate-400 mt-1">View budget tracker, gamification badges, and weekly AI review.</p>
                 </div>
               </div>
             </div>

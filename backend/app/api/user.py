@@ -48,6 +48,8 @@ async def update_profile(payload: UserProfileUpdate, current_user: dict = Depend
         update_data["nametag"] = payload.nametag
     if payload.linked_family_members is not None:
         update_data["linked_family_members"] = payload.linked_family_members
+    if payload.weekly_report is not None:
+        update_data["weekly_report"] = payload.weekly_report
 
     if not update_data:
         # No updates requested, return original profile

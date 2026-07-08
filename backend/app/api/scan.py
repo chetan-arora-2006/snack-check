@@ -501,12 +501,12 @@ async def search_products(
                     if data.get("status") == 1 and "product" in data:
                         products_raw = [data["product"]]
             else:
-                # v2 search API (stable, supports pagination)
+                # v1 search API (properly handles free text search)
                 encoded = quote(query_stripped)
                 url = (
-                    f"https://world.openfoodfacts.org/api/v2/search"
+                    f"https://world.openfoodfacts.org/cgi/search.pl"
                     f"?search_terms={encoded}"
-                    f"&sort_by=popularity_key"
+                    f"&search_simple=1&action=process&json=1"
                     f"&page_size=16&page={page}"
                     f"&fields=code,product_name,product_name_en,brands,"
                     f"image_front_small_url,image_front_url,ingredients_text,"

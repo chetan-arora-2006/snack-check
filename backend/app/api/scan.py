@@ -503,7 +503,7 @@ async def search_products(
             else:
                 # v1 search API (properly handles free text search)
                 encoded = quote(query_stripped)
-                url = (
+                url_v1 = (
                     f"https://world.openfoodfacts.org/cgi/search.pl"
                     f"?search_terms={encoded}"
                     f"&search_simple=1&action=process&json=1"
@@ -513,13 +513,50 @@ async def search_products(
                     f"ingredients_text_en,nutriments,nutriscore_grade,"
                     f"allergens_tags,additives_tags,quantity,countries_tags"
                 )
-                if country:
-                    url += f"&countries_tags_en={quote(country.strip().lower())}"
-                r = await client.get(url, headers=headers)
-                if r.status_code == 200:
-                    data = r.json()
-                    products_raw = data.get("products", [])
-                # On any non-200 (503, 429, etc.) we just return empty — no crash
+                
+                try:
+                    r = await client.get(url_v1, headers=headers)
+                    if r.status_code == 200:
+                        data = r.json()
+                        products_raw = data.get("products", [])
+                    else:
+                        raise ValueError("v1 API 503")
+                except Exception:
+                    # Fallback 1: Try v2 API as a brand
+                    url_v2_brand = (
+                        f"https://world.openfoodfacts.org/api/v2/search"
+                        f"?brands_tags_en={encoded}&page_size=16&page={page}"
+                        f"&fields=code,product_name,product_name_en,brands,"
+                        f"image_front_small_url,image_front_url,ingredients_text,"
+                        f"ingredients_text_en,nutriments,nutriscore_grade,"
+                        f"allergens_tags,additives_tags,quantity,countries_tags"
+                    )
+                    try:
+                        r2 = await client.get(url_v2_brand, headers=headers)
+                        if r2.status_code == 200:
+                            data2 = r2.json()
+                            products_raw = data2.get("products", [])
+                    except Exception:
+                        products_raw = []
+                        
+                    # Fallback 2: Try v2 API as a category if brand returns nothing
+                    if not products_raw:
+                        url_v2_cat = (
+                            f"https://world.openfoodfacts.org/api/v2/search"
+                            f"?categories_tags_en={encoded}&page_size=16&page={page}"
+                            f"&fields=code,product_name,product_name_en,brands,"
+                            f"image_front_small_url,image_front_url,ingredients_text,"
+                            f"ingredients_text_en,nutriments,nutriscore_grade,"
+                            f"allergens_tags,additives_tags,quantity,countries_tags"
+                        )
+                        try:
+                            r3 = await client.get(url_v2_cat, headers=headers)
+                            if r3.status_code == 200:
+                                data3 = r3.json()
+                                products_raw = data3.get("products", [])
+                        except Exception:
+                            products_raw = []
+
     except Exception:
         # Network timeout or connection error — return empty gracefully
         products_raw = []

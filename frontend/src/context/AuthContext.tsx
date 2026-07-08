@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserProfile | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('sc_token'));
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [activeMemberId, setActiveMemberId] = useState<string | null>(null);
 
   const logout = useCallback(() => {
@@ -101,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         // Apply default local storage theme if not logged in
-        const savedTheme = localStorage.getItem('sc_theme') as 'light' | 'dark' || 'dark';
+        const savedTheme = localStorage.getItem('sc_theme') as 'light' | 'dark' || 'light';
         setTheme(savedTheme);
         applyTheme(savedTheme);
       }

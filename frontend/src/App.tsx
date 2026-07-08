@@ -1,19 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Layout } from './components/Layout';
 import { AuthPage } from './components/AuthPage';
-import { Dashboard } from './components/Dashboard';
-import { Scanner } from './components/Scanner';
-import { ScanHistory } from './components/ScanHistory';
-import { Doctors } from './components/Doctors';
-import { SettingsPage } from './components/SettingsPage';
-import { Chatbot } from './components/Chatbot';
-import { FamilyHealthPage } from './components/FamilyHealthPage';
-import { InvitePage } from './components/InvitePage';
-import { ProfilePage } from './components/ProfilePage';
-import { ProductCatalog } from './components/ProductCatalog';
-import { TodayConsumption } from './components/TodayConsumption';
 import { LandingPage } from './components/LandingPage';
+
+const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
+const Scanner = lazy(() => import('./components/Scanner').then(m => ({ default: m.Scanner })));
+const ScanHistory = lazy(() => import('./components/ScanHistory').then(m => ({ default: m.ScanHistory })));
+const Doctors = lazy(() => import('./components/Doctors').then(m => ({ default: m.Doctors })));
+const SettingsPage = lazy(() => import('./components/SettingsPage').then(m => ({ default: m.SettingsPage })));
+const Chatbot = lazy(() => import('./components/Chatbot').then(m => ({ default: m.Chatbot })));
+const FamilyHealthPage = lazy(() => import('./components/FamilyHealthPage').then(m => ({ default: m.FamilyHealthPage })));
+const InvitePage = lazy(() => import('./components/InvitePage').then(m => ({ default: m.InvitePage })));
+const ProfilePage = lazy(() => import('./components/ProfilePage').then(m => ({ default: m.ProfilePage })));
+const ProductCatalog = lazy(() => import('./components/ProductCatalog').then(m => ({ default: m.ProductCatalog })));
+const TodayConsumption = lazy(() => import('./components/TodayConsumption').then(m => ({ default: m.TodayConsumption })));
+
+const FallbackLoader = () => (
+  <div className="flex flex-col items-center justify-center min-h-[400px] w-full text-slate-500 dark:text-slate-400">
+    <div className="w-10 h-10 border-4 border-slate-200 dark:border-slate-800 border-t-emerald-500 rounded-full animate-spin mb-4" />
+    <p className="text-sm font-semibold tracking-wider uppercase animate-pulse">Loading view...</p>
+  </div>
+);
 import type { ScanDB } from './schemas/scan';
 
 class ErrorBoundary extends React.Component<
@@ -87,27 +95,29 @@ const AppContent: React.FC = () => {
   return (
     <Layout activeTab={activeTab} setActiveTab={setActiveTab} onGoHome={() => setShowLanding(true)}>
       <ErrorBoundary>
-        {activeTab === 'dashboard' && (
-          <Dashboard 
-            setActiveTab={setActiveTab} 
-            setSelectedScan={setSelectedScan} 
-          />
-        )}
-        {activeTab === 'scanner' && <Scanner />}
-        {activeTab === 'history' && (
-          <ScanHistory 
-            selectedScan={selectedScan} 
-            setSelectedScan={setSelectedScan} 
-          />
-        )}
-        {activeTab === 'doctors' && <Doctors />}
-        {activeTab === 'chatbot' && <Chatbot />}
-        {activeTab === 'settings' && <SettingsPage />}
-        {activeTab === 'family' && <FamilyHealthPage />}
-        {activeTab === 'invite' && <InvitePage />}
-        {activeTab === 'profile' && <ProfilePage />}
-        {activeTab === 'catalog' && <ProductCatalog />}
-        {activeTab === 'consumption' && <TodayConsumption setActiveTab={setActiveTab} />}
+        <Suspense fallback={<FallbackLoader />}>
+          {activeTab === 'dashboard' && (
+            <Dashboard 
+              setActiveTab={setActiveTab} 
+              setSelectedScan={setSelectedScan} 
+            />
+          )}
+          {activeTab === 'scanner' && <Scanner />}
+          {activeTab === 'history' && (
+            <ScanHistory 
+              selectedScan={selectedScan} 
+              setSelectedScan={setSelectedScan} 
+            />
+          )}
+          {activeTab === 'doctors' && <Doctors />}
+          {activeTab === 'chatbot' && <Chatbot />}
+          {activeTab === 'settings' && <SettingsPage />}
+          {activeTab === 'family' && <FamilyHealthPage />}
+          {activeTab === 'invite' && <InvitePage />}
+          {activeTab === 'profile' && <ProfilePage />}
+          {activeTab === 'catalog' && <ProductCatalog />}
+          {activeTab === 'consumption' && <TodayConsumption setActiveTab={setActiveTab} />}
+        </Suspense>
       </ErrorBoundary>
     </Layout>
   );

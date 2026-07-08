@@ -320,6 +320,8 @@ function ProductCard({ product, onClick }: { product: Product; onClick: () => vo
           <img
             src={product.image_url}
             alt={product.product_name}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
             onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
@@ -418,7 +420,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         <div className="sticky top-0 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-100 dark:border-slate-850 px-6 py-4 flex items-center justify-between z-10 rounded-t-3xl">
           <div className="flex items-center gap-3">
             {product.image_url && (
-              <img src={product.image_url} alt="" className="w-10 h-10 object-contain rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 p-1" />
+              <img src={product.image_url} alt="" loading="lazy" decoding="async" className="w-10 h-10 object-contain rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 p-1" />
             )}
             <div>
               <h2 className="font-extrabold text-sm text-slate-900 dark:text-slate-100 leading-tight">{product.product_name}</h2>

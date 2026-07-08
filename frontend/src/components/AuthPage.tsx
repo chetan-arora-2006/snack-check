@@ -115,7 +115,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-50 dark:bg-slate-950">
       {/* Background visual gradients */}
       <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-emerald-500/10 blur-[120px]" />
       <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-teal-500/10 blur-[120px]" />
@@ -124,7 +124,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
         {onBack && (
           <button 
             onClick={onBack}
-            className="absolute -top-12 left-0 flex items-center gap-1 text-sm text-slate-400 hover:text-white transition-colors"
+            className="absolute -top-12 left-0 flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
             Back to Home
@@ -140,20 +140,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
             <Activity className="w-8 h-8 text-slate-950" />
           </div>
           <div className="text-center">
-            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-400 dark:to-teal-200 bg-clip-text text-transparent">
               SnackCheck
             </h1>
-            <p className="text-slate-400 text-sm mt-1">Make informed snack decisions using AI</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Make informed snack decisions using AI</p>
           </div>
         </button>
 
         {/* Auth Panel */}
-        <div className="glass rounded-3xl p-8 border border-slate-800 shadow-2xl">
+        <div className="glass rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-2xl">
           <div className="flex gap-4 mb-6 border-b border-slate-900 pb-4">
             <button
               onClick={() => { setIsLogin(true); setError(null); }}
               className={`flex-1 pb-2 text-sm font-semibold border-b-2 transition-all duration-300 ${
-                isLogin ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                isLogin ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Sign In
@@ -161,7 +161,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
             <button
               onClick={() => { setIsLogin(false); setError(null); }}
               className={`flex-1 pb-2 text-sm font-semibold border-b-2 transition-all duration-300 ${
-                !isLogin ? 'border-emerald-500 text-emerald-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                !isLogin ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
             >
               Register
@@ -187,7 +187,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
                     placeholder="Enter your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-slate-900/60 border border-slate-850 hover:border-slate-800 focus:border-emerald-500/50 focus:bg-slate-900 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-100 placeholder-slate-650 outline-none transition-all duration-200"
+                    className="w-full bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-850 hover:border-slate-300 dark:hover:border-slate-800 focus:border-emerald-500/50 focus:bg-slate-50 dark:focus:bg-slate-900 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-650 outline-none transition-all duration-200"
                   />
                 </div>
               </div>
@@ -203,7 +203,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-900/60 border border-slate-850 hover:border-slate-800 focus:border-emerald-500/50 focus:bg-slate-900 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-100 placeholder-slate-650 outline-none transition-all duration-200"
+                  className="w-full bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-850 hover:border-slate-300 dark:hover:border-slate-800 focus:border-emerald-500/50 focus:bg-slate-50 dark:focus:bg-slate-900 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-650 outline-none transition-all duration-200"
                 />
               </div>
             </div>
@@ -218,7 +218,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-900/60 border border-slate-850 hover:border-slate-800 focus:border-emerald-500/50 focus:bg-slate-900 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-100 placeholder-slate-650 outline-none transition-all duration-200"
+                  className="w-full bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-850 hover:border-slate-300 dark:hover:border-slate-800 focus:border-emerald-500/50 focus:bg-slate-50 dark:focus:bg-slate-900 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-650 outline-none transition-all duration-200"
                 />
               </div>
             </div>
@@ -232,7 +232,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
                   onChange={(e) => setAgreeToTerms(e.target.checked)}
                   className="mt-1 w-4 h-4 bg-slate-900 border-slate-700 rounded text-emerald-500 focus:ring-emerald-500/20"
                 />
-                <label htmlFor="terms" className="text-xs text-slate-400 leading-relaxed">
+                <label htmlFor="terms" className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
                   I agree to the SnackCheck <button type="button" onClick={() => setShowTerms(true)} className="text-emerald-400 hover:underline bg-transparent border-none p-0 cursor-pointer">Terms of Service</button> and <button type="button" onClick={() => setShowPrivacy(true)} className="text-emerald-400 hover:underline bg-transparent border-none p-0 cursor-pointer">Privacy Policy</button>, and consent to having my dietary data processed for personalized AI recommendations.
                 </label>
               </div>
@@ -257,9 +257,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
           {/* Divider */}
           <div className="relative my-6 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-900" />
+              <div className="w-full border-t border-slate-200 dark:border-slate-900" />
             </div>
-            <span className="relative z-10 px-3 bg-slate-950/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <span className="relative z-10 px-3 bg-white dark:bg-slate-950/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Or continue with
             </span>
           </div>
@@ -275,15 +275,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
       {/* Terms Modal */}
       {showTerms && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
             <button 
               onClick={() => setShowTerms(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300"
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <h3 className="text-xl font-bold text-slate-100 mb-4">Terms of Service</h3>
-            <div className="text-sm text-slate-400 space-y-3 max-h-60 overflow-y-auto pr-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">Terms of Service</h3>
+            <div className="text-sm text-slate-600 dark:text-slate-400 space-y-3 max-h-60 overflow-y-auto pr-2">
               <p>Welcome to SnackCheck!</p>
               <p>1. By using our service, you agree that the AI-generated health scores and food analysis are for informational purposes only and do not constitute medical advice.</p>
               <p>2. We are not liable for any allergic reactions or health issues arising from inaccuracies in the AI analysis or missing information on product labels.</p>
@@ -299,15 +299,15 @@ export const AuthPage: React.FC<AuthPageProps> = ({ onBack }) => {
       {/* Privacy Policy Modal */}
       {showPrivacy && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
             <button 
               onClick={() => setShowPrivacy(false)}
-              className="absolute top-4 right-4 text-slate-500 hover:text-slate-300"
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <h3 className="text-xl font-bold text-slate-100 mb-4">Privacy Policy</h3>
-            <div className="text-sm text-slate-400 space-y-3 max-h-60 overflow-y-auto pr-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4">Privacy Policy</h3>
+            <div className="text-sm text-slate-600 dark:text-slate-400 space-y-3 max-h-60 overflow-y-auto pr-2">
               <p>Your privacy is critically important to us.</p>
               <p>1. <strong>Data Collection:</strong> We collect your dietary preferences, allergy information, and consumption history to provide personalized AI recommendations.</p>
               <p>2. <strong>AI Processing:</strong> Images of food labels you upload are processed securely. We do not sell your biometric or dietary data to third-party advertisers.</p>

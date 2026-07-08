@@ -506,6 +506,7 @@ async def search_products(
                 url = (
                     f"https://world.openfoodfacts.org/api/v2/search"
                     f"?search_terms={encoded}"
+                    f"&sort_by=popularity_key"
                     f"&page_size=16&page={page}"
                     f"&fields=code,product_name,product_name_en,brands,"
                     f"image_front_small_url,image_front_url,ingredients_text,"
